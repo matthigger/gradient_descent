@@ -148,7 +148,7 @@ class ParamView {
       node("line", { x1: this.sx(a0), y1: this.sy(a1), x2: this.sx(b0),
         y2: this.sy(b1), class: "lockline" }, g);
     }
-    this.star(g, cx, cy);
+    this.contourLabels(g, q, top, cx, cy);
     this.trail(g, st.trail.map(p => [this.sx(p[0]), this.sy(p[1])]));
 
     const px = this.sx(c[0]), py = this.sy(c[1]);
@@ -158,6 +158,45 @@ class ParamView {
 
     this.axes(svg);
     if (!this.inside(c)) this.edgeMarker(svg, c);
+  }
+
+  /**
+   * Value labels on the level lines, so the numbers show which way is
+   * down. They sit along the bowl's long axis, where the lines are spaced
+   * widest, on whichever side keeps more of them in view; labels whose
+   * text box would overlap the previous one, or crowd the center, are
+   * skipped.
+   */
+  contourLabels(g, q, top, cx, cy) {
+    const { l, v } = q.eig, u = [v[1][0], -v[1][1]], P = PLOT;
+    const inPlot = (x, y) => x > P.x0 + 18 && x < P.x1 - 18
+      && y > P.y0 + 10 && y < P.y1 - 8;
+    // Rough text box of an 11.5px label: width per character, height.
+    const width = str => 6.6 * str.length, HEIGHT = 15;
+    let best = [];
+    for (const side of [1, -1]) {
+      const kept = [];
+      let last = null;
+      for (let k = 0; k < LEVELS; k++) {
+        const ell = top * RHO ** k;
+        const r = Math.sqrt(2 * ell / Math.max(l[1], 1e-300)) * this.ppu;
+        const x = cx + side * r * u[0], y = cy + side * r * u[1];
+        const str = fmt(q.fmin + ell);
+        if (r < 20 || !inPlot(x, y)) continue;
+        if (last) {
+          const dr = last.r - r;
+          const apart = dr * Math.abs(u[0]) >= (last.w + width(str)) / 2 + 4
+            || dr * Math.abs(u[1]) >= HEIGHT;
+          if (!apart) continue;
+        }
+        kept.push([x, y, str]);
+        last = { r, w: width(str) };
+      }
+      if (kept.length > best.length) best = kept;
+    }
+    for (const [x, y, str] of best) {
+      text(g, x, y + 4, str, { class: "clabel", "text-anchor": "middle" });
+    }
   }
 
   /**
@@ -173,15 +212,6 @@ class ParamView {
       return p;
     });
     return ends;
-  }
-
-  star(g, x, y) {
-    const pts = [];
-    for (let i = 0; i < 10; i++) {
-      const r = i % 2 ? 4.5 : 11, a = -Math.PI / 2 + i * Math.PI / 5;
-      pts.push(`${x + r * Math.cos(a)},${y + r * Math.sin(a)}`);
-    }
-    node("polygon", { points: pts.join(" "), class: "star" }, g);
   }
 
   /** Iterates as a polyline, with dots while there are few enough. */
@@ -325,8 +355,6 @@ class ParamView {
         points: qd.proj.map(p => `${p.x},${p.y}`).join(" ") }, mesh);
     }
 
-    const sm = P(q.cstar);
-    this.star(svg, sm.x, sm.y);
     const tp = st.trail.map(p => { const r = P(p); return [r.x, r.y]; });
     this.trail(svg, tp);
     const pc = P(c);

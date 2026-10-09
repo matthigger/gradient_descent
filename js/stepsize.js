@@ -160,8 +160,6 @@ const StepTab = (function () {
     const lane = P1.y1 - 28;
     node("line", { x1: P1.x0, x2: P1.x1, y1: lane, y2: lane,
       class: "lane" }, g);
-    const sm = { x: sx(o.cstar), y: sy(o.fmin) };
-    view.star(g, sm.x, sm.y);
 
     const tr = run1.trail.map(p => [cx(p[0]), cy(o.f(p[0]))]);
     view.trail(g, tr);

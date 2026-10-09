@@ -354,8 +354,16 @@ svg.orbit { cursor: grab; }
   stroke-dasharray: 6 4;
   pointer-events: none;
 }
+.clabel {
+  font-size: 11.5px;
+  fill: #33415c;
+  paint-order: stroke;
+  stroke: #eef2f9;
+  stroke-width: 3.5px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
 .axis0 { stroke: #1c2230; stroke-opacity: .25; stroke-width: 1; }
-.star { fill: #facc15; stroke: var(--ink); stroke-width: 1.2; }
 .trail {
   fill: none;
   stroke: var(--ink);

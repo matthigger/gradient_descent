@@ -29,7 +29,7 @@ is uphill and step the other way."
 - **Left: error surface** over (c₀, c₁).
   - Contour view (default): log-spaced filled levels plus level lines, so
     the valley floor stays visible in ill-conditioned cases. Marks: trail of
-    previous iterates (dots joined by segments), ★ at the minimum.
+    previous iterates (dots joined by segments).
   - **The point c**: current parameters c = (c₀, c₁) as a draggable
     point. Dragging it is the main way to explore: the scatter line,
     residuals, readout (c, MSE, ∇) and arrows all update live, and an MSE
@@ -133,22 +133,22 @@ loss chart as Tab 1.
 ## "Try this" (draft)
 
 Regression
-- Set a start far from ★ and step. Which way does the step arrow point,
+- Set a start far from the minimum and step. Which way does the step arrow point,
   relative to the contour lines? (Answer: perpendicular, straight downhill
-  locally, not at ★.)
+  locally, not at the minimum.)
 - Raise η until it diverges. Turn on zones: where did it break?
 - Uncentered, Raw: Run. Why the long thin valley? (Answer: raising c₁ while
   lowering c₀ pivots the line around the data's center, which barely
   changes MSE; that pair of moves is the valley floor.) Switch to Centered.
 - Uneven scales: find the largest η that converges; how far has c₀ moved
   after 100 steps? Standardize and repeat.
-- Outlier: drag the outlier and watch ★ move. Why does one point matter so
+- Outlier: drag the outlier and watch the best line move. Why does one point matter so
   much? (Answer: errors are squared.)
 - Drag the line by hand toward the dashed min line; watch your point on the
-  surface walk to ★.
+  surface walk to the bottom.
 - Drag c along the bold level line. MSE stays put, but the line on
   the scatter changes. Find two very different lines with the same MSE.
-- Drag c in a small circle around ★. Which direction raises MSE fastest?
+- Drag c in a small circle around the bottom. Which direction raises MSE fastest?
   Check against the gradient arrow. (Answer: ∇, perpendicular to the
   level line.)
 
