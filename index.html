@@ -87,6 +87,16 @@
         <li>Drag the point <b>c</b> along the bold contour line. MSE stays the
           same, but the line on the right changes. Find two very different
           lines with the same MSE.</li>
+        <li>Hold Shift and drag <b>c</b> left and right: only the
+          intercept changes, and the line slides up and down. Now up and
+          down: only the slope changes, and the line pivots about
+          <i>x</i> = 0. On <em>Uncentered</em>, why does a small slope
+          change cost so much more MSE than on <em>Centered</em>?
+          <details class="answer"><summary>Answer</summary>The line pivots
+            about <i>x</i> = 0, far from the data, so a small turn swings
+            it away from every sample at once. That is the steep direction
+            of the long thin valley.</details>
+        </li>
         <li>Drag <b>c</b> in a small circle around the bottom. Which way
           does MSE rise fastest? Turn on <em>Show gradient</em> to check.
           <details class="answer"><summary>Answer</summary>Along the

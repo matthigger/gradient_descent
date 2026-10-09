@@ -237,9 +237,10 @@ const RegTab = (function () {
     $("reg-step").disabled = !!runner.status;
     $("reg-surf-hint").textContent = S.view === "3d"
       ? "Drag to orbit, scroll to zoom. Drag the point c on the floor to "
-        + "move it; the dropline is its MSE."
-      : "Drag the point c, or click anywhere, to choose c. Bold: the "
-        + "contour through c.";
+        + "move it (hold Shift to change only one parameter); the "
+        + "dropline is its MSE."
+      : "Drag the point c, or click anywhere, to choose c. Hold Shift to "
+        + "change only one parameter. Bold: the contour through c.";
   }
 
   function render() {

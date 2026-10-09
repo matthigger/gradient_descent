@@ -328,6 +328,12 @@ svg.orbit { cursor: grab; }
   stroke-opacity: .75;
   pointer-events: none;
 }
+.lockline {
+  stroke: #ea580c;
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+  pointer-events: none;
+}
 .axis0 { stroke: #1c2230; stroke-opacity: .25; stroke-width: 1; }
 .star { fill: #facc15; stroke: var(--ink); stroke-width: 1.2; }
 .trail {

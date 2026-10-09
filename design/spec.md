@@ -37,7 +37,8 @@ is uphill and step the other way."
     label rides next to it. The level line through c is drawn bold, showing
     every other c with the same MSE. Clicking empty surface jumps c there.
     Moving c by hand clears the trail and step count (it becomes the new
-    start).
+    start). Holding Shift locks the drag to one parameter (the axis the
+    pointer has moved further along), with a dashed guide along it.
   - 3D toggle: orbitable surface (scroll to zoom, as in
     `projection_2d_3d`): drag empty space to orbit, drag the c handle to
     move it. The handle slides along the (c₀, c₁) floor plane, the point rides the

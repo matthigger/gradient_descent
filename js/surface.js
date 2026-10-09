@@ -8,7 +8,8 @@
 // surface as a mesh under an orthographic orbit camera; the handle for c
 // slides on the floor plane and a dropline shows its height. In both modes
 // dragging that handle (or clicking in contour mode) sets c through
-// opts.onSet.
+// opts.onSet. Holding Shift locks the drag to one parameter: whichever of
+// c0, c1 the pointer has moved further along since the drag began.
 
 const PLOT = { w: 560, h: 560, x0: 62, x1: 546, y0: 14, y1: 498 };
 // Level sets: K levels, each RHO times the excess of the one outside it.
@@ -142,6 +143,12 @@ class ParamView {
 
     const c = st.c, ec = q.excess(c);
     if (ec > 0) ellipse(ec, { class: "here-level" });
+    const lock = this.lockLine();
+    if (lock) {
+      const [[a0, a1], [b0, b1]] = lock;
+      node("line", { x1: this.sx(a0), y1: this.sy(a1), x2: this.sx(b0),
+        y2: this.sy(b1), class: "lockline" }, g);
+    }
     if (st.showMin) this.star(g, cx, cy);
     this.trail(g, st.trail.map(p => [this.sx(p[0]), this.sy(p[1])]));
 
@@ -152,6 +159,21 @@ class ParamView {
 
     this.axes(svg);
     if (!this.inside(c)) this.edgeMarker(svg, c);
+  }
+
+  /**
+   * Ends of the line c may move along during a Shift drag, in parameter
+   * units, spanning the domain; null when no axis is locked.
+   */
+  lockLine() {
+    const d = this.drag;
+    if (!d || d.lock === undefined) return null;
+    const a = d.anchor, ends = [-1, 1].map(s => {
+      const p = a.slice();
+      p[d.lock] = this.mid[d.lock] + s * this.hw;
+      return p;
+    });
+    return ends;
   }
 
   star(g, x, y) {
@@ -278,6 +300,15 @@ class ParamView {
       "text-anchor": "middle" });
     text(floor, l1.x, l1.y, ly, { class: "axis-label",
       "text-anchor": "middle" });
+    const lock = this.lockLine();
+    if (lock) {
+      const [a, b] = lock.map(p => {
+        const w = this.world(p, top);
+        return F(w[0], w[1]);
+      });
+      node("line", { x1: a.x, y1: a.y, x2: b.x, y2: b.y, class: "lockline" },
+        floor);
+    }
     const c = st.c, w = this.world(c, top);
     const tip = F(w[0], w[1]);
 
@@ -322,22 +353,25 @@ class ParamView {
       const p = svgPoint(svg, e);
       if (this.st.mode === "3d") {
         this.drag = e.target.classList.contains("handle")
-          ? { tip: true } : { orbit: true, x: p.x, y: p.y };
+          ? { tip: true, anchor: this.st.c.slice() }
+          : { orbit: true, x: p.x, y: p.y };
       } else {
         const P = PLOT;
         if (p.x < P.x0 || p.x > P.x1 || p.y < P.y0 || p.y > P.y1) return;
-        this.drag = { tip: true };
+        this.drag = { tip: true, anchor: this.st.c.slice() };
       }
       svg.setPointerCapture(e.pointerId);
       e.preventDefault();
-      this.move(p);
+      this.move(p, e.shiftKey);
     });
     svg.addEventListener("pointermove", e => {
-      if (this.drag) this.move(svgPoint(svg, e));
+      if (this.drag) this.move(svgPoint(svg, e), e.shiftKey);
     });
     const end = () => {
-      if (this.drag && this.drag.tip) this.opts.onSet(this.st.c, true);
+      // Clear the drag first so the final redraw drops the Shift guide.
+      const d = this.drag;
       this.drag = null;
+      if (d && d.tip) this.opts.onSet(this.st.c, true);
     };
     svg.addEventListener("pointerup", end);
     svg.addEventListener("pointercancel", end);
@@ -350,7 +384,8 @@ class ParamView {
     }, { passive: false });
   }
 
-  move(p) {
+  /** Follow the pointer; shift locks c to one axis through the anchor. */
+  move(p, shift) {
     const d = this.drag;
     if (d.orbit) {
       this.cam.theta += (p.x - d.x) * 0.01;
@@ -362,6 +397,13 @@ class ParamView {
     }
     const c = this.st.mode === "3d" ? this.unprojectFloor(p.x, p.y)
       : this.inv(clamp(p.x, PLOT.x0, PLOT.x1), clamp(p.y, PLOT.y0, PLOT.y1));
+    d.lock = undefined;
+    if (shift) {
+      // Both axes share one scale, so parameter units compare fairly.
+      const a = d.anchor;
+      d.lock = Math.abs(c[0] - a[0]) >= Math.abs(c[1] - a[1]) ? 0 : 1;
+      c[1 - d.lock] = a[1 - d.lock];
+    }
     this.opts.onSet(c, false);
   }
 }

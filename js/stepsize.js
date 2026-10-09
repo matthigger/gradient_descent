@@ -305,8 +305,9 @@ const StepTab = (function () {
       ? "Click or drag to choose the start c."
       : S.view === "3d"
         ? "Drag to orbit, scroll to zoom. Drag the point c on the floor to "
-          + "move it."
-        : "Drag the point c, or click anywhere, to choose c.";
+          + "move it; hold Shift to change only one parameter."
+        : "Drag the point c, or click anywhere, to choose c. Hold Shift "
+          + "to change only one parameter.";
   }
 
   function render() {
