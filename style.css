@@ -231,6 +231,26 @@ footer a { color: inherit; }
 
 .formula .sep { display: inline-block; width: 1.6em; }
 .status { margin: 8px 0 0; font-weight: 600; }
+/* Column vector: entries stacked between square brackets. */
+.colvec {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  vertical-align: middle;
+  align-items: flex-end;
+  padding: 1px .45em;
+  line-height: 1.25;
+}
+.colvec::before, .colvec::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: .28em;
+  border: 1.5px solid currentColor;
+}
+.colvec::before { left: 0; border-right: 0; }
+.colvec::after { right: 0; border-left: 0; }
 .status.converged { color: var(--test-ink); }
 .status.diverged { color: var(--wrong); }
 .status.capped { color: #9a3412; }

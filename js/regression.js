@@ -192,12 +192,13 @@ const RegTab = (function () {
   function readout() {
     const c = runner.c, g = q.grad(c);
     const rows = [
-      ["<b>c</b> = (<i>c</i>₀, <i>c</i>₁)", fmtVec(c)],
+      [`<b>c</b> = ${colVec(["<i>c</i>₀", "<i>c</i>₁"])}`, fmtCol(c)],
       ["MSE(<b>c</b>)", fmt(q.f(c))],
-      ["∇MSE(<b>c</b>)", fmtVec(g)],
+      ["∇MSE(<b>c</b>)", fmtCol(g)],
+      ["‖∇MSE(<b>c</b>)‖", fmt(Math.hypot(...g))],
     ];
     if (S.showMin) {
-      rows.push(["min MSE, at", `${fmt(q.fmin)}, ${fmtVec(q.cstar)}`]);
+      rows.push(["min MSE", fmt(q.fmin)], ["at <b>c</b>*", fmtCol(q.cstar)]);
     }
     rows.push(["condition number <i>κ</i>", fmt(q.kappa)]);
     $("reg-readout").innerHTML = rows.map(([k, v]) =>

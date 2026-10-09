@@ -242,9 +242,12 @@ const StepTab = (function () {
         rows.push(["one-step <i>η</i> = 1/(2<i>a</i>)", fmt(1 / (2 * S.a))]);
       }
     } else {
-      rows.push(["<b>c</b> = (<i>c</i>₀, <i>c</i>₁)", fmtVec(c)],
+      const g = q2.grad(c);
+      rows.push([`<b>c</b> = ${colVec(["<i>c</i>₀", "<i>c</i>₁"])}`,
+        fmtCol(c)],
         ["<i>f</i>(<b>c</b>)", fmt(q2.f(c))],
-        ["∇<i>f</i>(<b>c</b>)", fmtVec(q2.grad(c))],
+        ["∇<i>f</i>(<b>c</b>)", fmtCol(g)],
+        ["‖∇<i>f</i>(<b>c</b>)‖", fmt(Math.hypot(...g))],
         ["condition number <i>κ</i>", fmt(S.kappa)]);
     }
     $("st-readout").innerHTML = rows.map(([k, v]) =>

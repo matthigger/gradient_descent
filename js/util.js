@@ -43,7 +43,13 @@ function fmt(v, digits = 3) {
   return s.replace("-", "−");
 }
 
-function fmtVec(c) { return `(${c.map(v => fmt(v)).join(", ")})`; }
+/** Column vector (HTML) of already-formatted entries, in brackets. */
+function colVec(entries) {
+  return `<span class="colvec">${
+    entries.map(e => `<span>${e}</span>`).join("")}</span>`;
+}
+
+function fmtCol(c) { return colVec(c.map(v => fmt(v))); }
 
 /** Seeded uniform [0, 1) generator (mulberry32). */
 function rng(seed) {
