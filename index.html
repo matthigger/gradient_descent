@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gradient descent, visually</title>
+  <meta name="description" content="Walk downhill on an error surface to
+    fit a line, and see how the step size and the shape of the bowl decide
+    whether gradient descent crawls, zig-zags or blows up.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='17' rx='13' ry='9' fill='%23c9d5ea'/%3E%3Cellipse cx='16' cy='17' rx='7' ry='4.5' fill='%23eef2f9'/%3E%3Cpolyline points='4,9 12,13 15,16' fill='none' stroke='%23ea580c' stroke-width='2.4'/%3E%3Ccircle cx='16' cy='17' r='2.4' fill='%231c2230'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Gradient descent, visually</h1>
+    <p class="sub">To find the bottom of a valley in the fog, feel which way
+      is uphill and step the other way.</p>
+    <nav class="tabs" role="tablist">
+      <button class="tab" role="tab" data-mode="reg">Regression</button>
+      <button class="tab" role="tab" data-mode="step">Step size</button>
+    </nav>
+  </header>
+
+  <section class="intro card">
+    <div data-show="reg">
+      <h2>Fitting a line by walking downhill</h2>
+      <p class="goal"><b>Goal:</b> choose the intercept <i>c</i><sub>0</sub>
+        and slope <i>c</i><sub>1</sub> of the line
+        <i>&ycirc;</i> = <i>c</i><sub>0</sub> + <i>c</i><sub>1</sub><i>x</i>
+        with the smallest mean squared error (MSE).</p>
+      <p class="goal approach"><b>Approach:</b> start anywhere. The gradient
+        &nabla;MSE points the way MSE rises fastest, so take a small step
+        against it, and repeat.</p>
+      <div class="formula">
+        MSE(<b>c</b>) =
+        <span class="frac"><span>1</span><span><i>n</i></span></span>
+        &sum;<sub><i>i</i></sub> (<i>y<sub>i</sub></i> &minus;
+        <i>c</i><sub>0</sub> &minus; <i>c</i><sub>1</sub><i>x<sub>i</sub></i>)&sup2;
+      </div>
+      <div class="formula">
+        <span class="frac"><span>&part;MSE</span><span>&part;<i>c</i><sub>0</sub></span></span>
+        = &minus;<span class="frac"><span>2</span><span><i>n</i></span></span>
+        &sum;<sub><i>i</i></sub> <i>r<sub>i</sub></i>
+        <span class="sep"></span>
+        <span class="frac"><span>&part;MSE</span><span>&part;<i>c</i><sub>1</sub></span></span>
+        = &minus;<span class="frac"><span>2</span><span><i>n</i></span></span>
+        &sum;<sub><i>i</i></sub> <i>r<sub>i</sub></i><i>x<sub>i</sub></i>
+        <span class="sep"></span>
+        <b>c</b> &larr; <b>c</b> &minus; <i>&eta;</i> &nabla;MSE(<b>c</b>)
+      </div>
+      <p class="muted">The error <i>r<sub>i</sub></i> = <i>y<sub>i</sub></i>
+        &minus; <i>&ycirc;<sub>i</sub></i> is the red segment from sample
+        <i>i</i> to the line. Every <b>c</b> = (<i>c</i><sub>0</sub>,
+        <i>c</i><sub>1</sub>) is one line (right) and one point on the error
+        surface (left); <i>&eta;</i> is the step size.</p>
+    </div>
+    <div data-show="step">
+      <h2>How big a step?</h2>
+      <p class="goal"><b>Goal:</b> find the <b>c</b> that minimizes
+        <i>f</i>(<b>c</b>).</p>
+      <p class="goal approach"><b>Approach:</b> the gradient points uphill,
+        so a step against it goes down. The step size <i>&eta;</i> sets how
+        far: too small and it crawls, too large and it overshoots the
+        bottom, or even climbs out.</p>
+      <div class="formula">
+        <b>c</b> &larr; <b>c</b> &minus; <i>&eta;</i> &nabla;<i>f</i>(<b>c</b>)
+        <span class="sep"></span>
+        parabola: <i>f</i>(<i>c</i>) = <i>a</i>(<i>c</i> &minus;
+        <i>c</i>*)&sup2;
+      </div>
+      <p class="muted">The 2D bowl is steepest along one axis (curvature 1)
+        and shallowest along the other (curvature 1/<i>&kappa;</i>). The
+        condition number <i>&kappa;</i> says how stretched the bowl is: at
+        <i>&kappa;</i> = 1 it is round.</p>
+    </div>
+
+    <div>
+      <h3>Try this</h3>
+      <ul class="try" data-show="reg">
+        <li>Click far from the bottom and press <em>Gradient step</em> a
+          few times. Which way does the orange step arrow point, compared
+          with the contour lines?
+          <details class="answer"><summary>Answer</summary>Perpendicular to
+            the contour line through <b>c</b>: straight downhill from where
+            you stand. That is usually not straight at the minimum.</details>
+        </li>
+        <li>Drag the <b>c</b> tip along the bold contour line. MSE stays the
+          same, but the line on the right changes. Find two very different
+          lines with the same MSE.</li>
+        <li>Drag <b>c</b> in a small circle around the bottom. Which way
+          does MSE rise fastest? Turn on <em>Show gradient</em> to check.
+          <details class="answer"><summary>Answer</summary>Along the
+            gradient (dashed arrow), at right angles to the contour
+            line.</details>
+        </li>
+        <li>Raise <i>&eta;</i> until the walk diverges. Then turn on
+          <em>Show step-size zones</em>: where did it break?</li>
+        <li>On <em>Uncentered</em>, press <em>Run</em>. Why is the valley so
+          long and thin?
+          <details class="answer"><summary>Answer</summary>The data sit
+            far from <i>x</i> = 0. Raising the slope while lowering the
+            intercept pivots the line about the middle of the data, which
+            barely changes MSE: that pair of moves is the valley floor.
+            Switch <em>x</em> to <em>Centered</em> and run again.</details>
+        </li>
+        <li>On <em>Uneven scales</em>, find the largest <i>&eta;</i> that
+          converges. How many steps does it take? Switch <em>x</em> to
+          <em>Standardized</em> and try again.</li>
+        <li>On <em>Outlier</em>, turn on <em>Show min</em> and drag the
+          outlier. Why does one point move the best line so much?
+          <details class="answer"><summary>Answer</summary>Errors are
+            squared: a sample twice as far off costs four times as
+            much.</details>
+        </li>
+        <li>Drag the line's square handles until it matches the dashed best
+          line. Watch your <b>c</b> walk to the &#9733; on the
+          surface.</li>
+      </ul>
+      <ul class="try" data-show="step">
+        <li>On the parabola, is <i>f</i>&prime;(<i>c</i>) positive or
+          negative to the right of the bottom? Which way does the step
+          go?</li>
+        <li>Find the <i>&eta;</i> that lands at the bottom in one step.
+          What is it, in terms of <i>a</i>?
+          <details class="answer"><summary>Answer</summary><i>&eta;</i> =
+            1/(2<i>a</i>): the step &minus;<i>&eta;</i> &middot;
+            2<i>a</i>(<i>c</i> &minus; <i>c</i>*) is then exactly
+            &minus;(<i>c</i> &minus; <i>c</i>*).</details>
+        </li>
+        <li>Pick an <i>&eta;</i> that zig-zags, then one that blows up.
+          Now raise the curvature <i>a</i>: the same <i>&eta;</i> is no
+          longer safe.</li>
+        <li>On <em>Two valleys</em>, start on the right. Find one
+          <i>&eta;</i> that ends in the right valley and another that ends
+          in the left.</li>
+        <li>On the 2D <em>Stretched</em> bowl, find the largest
+          <i>&eta;</i> that converges and count the steps. Why does it
+          zig-zag across the valley but crawl along it?
+          <details class="answer"><summary>Answer</summary>One
+            <i>&eta;</i> serves both directions. It must be small enough
+            for the steep direction (or it diverges), which makes it tiny
+            for the shallow one.</details>
+        </li>
+        <li>Rotate the bowl with <i>&theta;</i>. Does the number of steps
+          change?
+          <details class="answer"><summary>Answer</summary>No. Gradient
+            descent depends only on the bowl's shape, not which way it
+            faces: the path just turns with it.</details>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <main class="panel reg" data-show="reg">
+    <div class="card plot">
+      <div class="plot-head">
+        <h3>Error surface</h3>
+        <div class="seg small" role="radiogroup">
+          <button data-reg-view="contour" role="radio">Contour</button>
+          <button data-reg-view="3d" role="radio">3D</button>
+        </div>
+      </div>
+      <svg id="reg-surf" aria-label="MSE over intercept and slope"></svg>
+      <p class="hint" id="reg-surf-hint"></p>
+    </div>
+
+    <div class="card plot">
+      <div class="plot-head">
+        <h3>Data and line</h3>
+        <span class="eq" id="reg-eq"></span>
+      </div>
+      <svg id="reg-scatter" aria-label="samples and the current line"></svg>
+      <p class="hint">Drag a sample to move it. Drag a square handle to
+        tilt the line, or empty space to shift it.</p>
+    </div>
+
+    <aside class="side">
+      <div class="card controls">
+        <div class="field"><span>Data</span>
+          <div class="seg wrap" id="reg-sets" role="radiogroup"></div></div>
+        <label class="slider"><span>Samples</span>
+          <input type="range" id="reg-n" min="5" max="100" step="1">
+          <span id="reg-nval" class="val"></span></label>
+        <label class="slider"><span>Noise</span>
+          <input type="range" id="reg-noise" min="0" max="2" step="0.05">
+          <span id="reg-noiseval" class="val"></span></label>
+        <div class="field"><span><i>x</i></span>
+          <div class="seg tight" role="radiogroup">
+            <button data-reg-scale="raw" role="radio">Raw</button>
+            <button data-reg-scale="center" role="radio">Centered</button>
+            <button data-reg-scale="std" role="radio">Standardized</button>
+          </div></div>
+        <label class="slider"><span>Step <i>&eta;</i></span>
+          <input type="range" id="reg-eta">
+          <span class="zones" id="reg-zones"></span>
+          <span id="reg-etaval" class="val"></span></label>
+        <div class="buttons">
+          <button id="reg-step" class="primary"
+            title="One step (space or &rarr;)">Gradient step</button>
+          <button id="reg-run">&#9654; Run</button>
+          <button id="reg-restart" title="Back to the start of this walk">
+            Reset start</button>
+        </div>
+        <div class="checks">
+          <label class="check"><input type="checkbox" id="reg-grad"> Show
+            gradient</label>
+          <label class="check"><input type="checkbox" id="reg-err"> Show
+            errors</label>
+          <label class="check"><input type="checkbox" id="reg-min"> Show
+            min</label>
+          <label class="check"><input type="checkbox" id="reg-zon"> Show
+            step-size zones</label>
+        </div>
+        <div class="buttons">
+          <button id="reg-resample" title="Draw new samples">&#8635;
+            Resample</button>
+          <button id="reg-reset" title="Undo drags">Reset</button>
+        </div>
+      </div>
+
+    </aside>
+
+    <div class="card readout below" id="reg-readout"></div>
+
+    <div class="card below">
+      <div class="plot-head">
+        <h3>Loss by step</h3>
+        <div class="seg small" role="radiogroup">
+          <button data-reg-log="1" role="radio">Log</button>
+          <button data-reg-log="0" role="radio">Linear</button>
+        </div>
+      </div>
+      <svg id="reg-chart" class="chart" aria-label="MSE against step"></svg>
+    </div>
+  </main>
+
+  <main class="panel" data-show="step">
+    <div class="card plot">
+      <div class="plot-head">
+        <h3 id="st-title">Objective</h3>
+        <div class="seg small" role="radiogroup" id="st-viewseg">
+          <button data-st-view="contour" role="radio">Contour</button>
+          <button data-st-view="3d" role="radio">3D</button>
+        </div>
+      </div>
+      <svg id="st-1d" aria-label="the objective f and the iterates"></svg>
+      <svg id="st-2d" aria-label="the 2D bowl and the iterates"></svg>
+      <p class="hint" id="st-hint"></p>
+    </div>
+
+    <div class="col">
+      <div class="card">
+        <div class="plot-head">
+          <h3>Loss by step</h3>
+          <div class="seg small" role="radiogroup">
+            <button data-st-log="1" role="radio">Log</button>
+            <button data-st-log="0" role="radio">Linear</button>
+          </div>
+        </div>
+        <svg id="st-chart" class="chart" aria-label="f against step"></svg>
+      </div>
+      <div class="card readout" id="st-readout"></div>
+    </div>
+
+    <aside class="side">
+      <div class="card controls">
+        <div class="field"><span>Space</span>
+          <div class="seg" role="radiogroup">
+            <button data-st-dim="1" role="radio">1D</button>
+            <button data-st-dim="2" role="radio">2D</button>
+          </div></div>
+        <div class="field" data-dim="1"><span><i>f</i></span>
+          <div class="seg" role="radiogroup">
+            <button data-st-fn="parabola" role="radio">Parabola</button>
+            <button data-st-fn="valleys" role="radio">Two valleys</button>
+          </div></div>
+        <label class="slider" id="st-a-row" data-dim="1"><span>Curvature
+          <i>a</i></span>
+          <input type="range" id="st-a" min="-2" max="2" step="0.05">
+          <span id="st-aval" class="val"></span></label>
+        <div class="field" data-dim="2"><span>Bowl</span>
+          <div class="seg wrap" id="st-presets" role="radiogroup"></div></div>
+        <label class="slider" data-dim="2"><span><i>&kappa;</i></span>
+          <input type="range" id="st-kappa" min="0" max="2" step="0.01">
+          <span id="st-kappaval" class="val"></span></label>
+        <label class="slider" data-dim="2"><span><i>&theta;</i></span>
+          <input type="range" id="st-theta" min="0" max="90" step="1">
+          <span id="st-thetaval" class="val"></span></label>
+        <label class="slider"><span>Step <i>&eta;</i></span>
+          <input type="range" id="st-eta">
+          <span class="zones" id="st-zones"></span>
+          <span id="st-etaval" class="val"></span></label>
+        <div class="buttons">
+          <button id="st-step" class="primary"
+            title="One step (space or &rarr;)">Gradient step</button>
+          <button id="st-run">&#9654; Run</button>
+          <button id="st-restart" title="Back to the start of this walk">
+            Reset start</button>
+        </div>
+        <div class="checks">
+          <label class="check"><input type="checkbox" id="st-grad"> Show
+            gradient</label>
+          <label class="check" data-dim="1"><input type="checkbox"
+            id="st-anim"> Animate each step</label>
+          <label class="check" data-dim="2"><input type="checkbox"
+            id="st-min"> Show min</label>
+          <label class="check" id="st-zon-row"><input type="checkbox"
+            id="st-zon"> Show step-size zones</label>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <a href="https://github.com/matthigger/gradient_descent">Source on
+      GitHub</a>
+    &middot;
+    <span id="build"></span>
+  </footer>
+
+  <script src="js/version.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/gd.js"></script>
+  <script src="js/surface.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/regression.js"></script>
+  <script src="js/stepsize.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
