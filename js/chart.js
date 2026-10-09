@@ -15,8 +15,9 @@ const CH = { w: 360, h: 210, x0: 54, x1: 348, y0: 12, y1: 172 };
  *   fmin (number): global minimum of f
  *   log (boolean): log(f - fmin) axis rather than f
  *   fname (string): objective name for the axis label
+ *   mark (number | null): step to highlight (the hovered iterate)
  */
-function drawLossChart(svg, losses, fmin, log, fname) {
+function drawLossChart(svg, losses, fmin, log, fname, mark = null) {
   svg.setAttribute("viewBox", `0 0 ${CH.w} ${CH.h}`);
   svg.innerHTML = "";
   const n = losses.length;
@@ -60,6 +61,12 @@ function drawLossChart(svg, losses, fmin, log, fname) {
     if (Number.isFinite(val[i])) pts.push(`${sx(i)},${sy(val[i])}`);
   }
   node("polyline", { points: pts.join(" "), class: "loss" }, svg);
+  if (mark !== null && Number.isFinite(val[mark])) {
+    node("line", { x1: sx(mark), x2: sx(mark), y1: CH.y0, y2: CH.y1,
+      class: "mark" }, svg);
+    node("circle", { cx: sx(mark), cy: sy(val[mark]), r: 5,
+      class: "hover-ring" }, svg);
+  }
   const last = val[n - 1];
   if (Number.isFinite(last)) {
     node("circle", { cx: sx(n - 1), cy: sy(last), r: 4,

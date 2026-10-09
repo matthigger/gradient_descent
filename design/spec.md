@@ -36,7 +36,9 @@ is uphill and step the other way."
     label rides next to it. The level line through c is drawn bold, showing
     every other c with the same MSE. Clicking empty surface jumps c there.
     Moving c by hand clears the trail and step count (it becomes the new
-    start). Holding Shift locks the drag to one parameter (the axis the
+    start). Hovering, once the walk has a step, picks the nearest
+    iterate: the scatter shows its line, the loss chart marks its step.
+    Holding Shift locks the drag to one parameter (the axis the
     pointer has moved further along), with a dashed guide along it.
   - 3D toggle: orbitable surface (scroll to zoom, as in
     `projection_2d_3d`): drag empty space to orbit, drag the c handle to
@@ -60,16 +62,19 @@ is uphill and step the other way."
     both ways.
 - **Below/side: loss chart**: MSE against step number (see open question 1).
 
-### Data sets
+### Data
 
-Seeded, with Samples, Noise, Resample, Reset (undo drags), as in `knn`.
+y = 1 + 0.5x + noise (n = 30, sd 0.5), seeded, with Resample and Reset
+(undo drags). Two sliders set x: **condition number κ** (sd(x) = √κ, so
+the bowl's κ is exactly the slider value at offset 0) and **offset**
+(mean x, which raises κ further; the slider shows the resulting raw-x κ).
+Moving them stretches and shifts the same sample. Presets:
 
-| set | x | what it teaches |
-|-----|---|-----------------|
-| Centered | spread around 0 | round-ish bowl, descent heads straight in |
-| Uncentered | far from 0 (e.g. 40–60) | c₀, c₁ strongly coupled: long thin diagonal valley; zig-zag/crawl |
-| Outlier | centered + one far point | one squared error drags the minimum; pairs with dragging |
-| Uneven scales | 0–1000 | slope curvature ≫ intercept curvature: max safe η is tiny and c₀ barely moves |
+| preset | κ, offset | what it teaches |
+|--------|-----------|-----------------|
+| Centered | 1.3, 0 | round-ish bowl, descent heads straight in |
+| Uncentered | 8.3, 5 (x in 0..10) | c₀, c₁ strongly coupled: long thin diagonal valley; zig-zag/crawl |
+| Uneven scales | 33, 0 (x in −10..10) | slope curvature ≫ intercept curvature: max safe η is tiny and c₀ barely moves |
 
 **x-scaling control** (segmented): Raw | Centered | Standardized. The model
 becomes ŷ = c₀ + c₁(x − x̄) or ŷ = c₀ + c₁(x − x̄)/s; surface axis labels
@@ -79,7 +84,7 @@ Uncentered (centering fixes it) and Uneven scales (standardizing fixes it).
 
 ### Controls (sidebar)
 
-Data set · Samples · Noise · x scaling · Step size η (log slider, zones
+Data preset · Condition κ · Offset · x scaling · Step size η (log slider, zones
 bar beneath) · Contour / 3D · buttons: **Gradient step**, **Run / Pause**, Reset start,
 Resample, Reset. Keys: space or → = one step.
 
@@ -142,8 +147,8 @@ Regression
   changes MSE; that pair of moves is the valley floor.) Switch to Centered.
 - Uneven scales: find the largest η that converges; how far has c₀ moved
   after 100 steps? Standardize and repeat.
-- Outlier: drag the outlier and watch the best line move. Why does one point matter so
-  much? (Answer: errors are squared.)
+- With x Raw, slide the offset up: κ climbs and the bowl tilts into a
+  diagonal valley. Switch x to Centered: the offset no longer matters.
 - Drag the line by hand toward the dashed min line; watch your point on the
   surface walk to the bottom.
 - Drag c along the bold level line. MSE stays put, but the line on

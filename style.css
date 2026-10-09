@@ -363,6 +363,9 @@ svg.orbit { cursor: grab; }
   stroke-linejoin: round;
   pointer-events: none;
 }
+.hover-ring { fill: none; stroke: #ea580c; stroke-width: 2.5;
+  pointer-events: none; }
+.mark { stroke: #ea580c; stroke-width: 1.2; stroke-dasharray: 3 3; }
 .axis0 { stroke: #1c2230; stroke-opacity: .25; stroke-width: 1; }
 .trail {
   fill: none;

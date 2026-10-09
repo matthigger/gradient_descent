@@ -10,7 +10,7 @@ const RegTab = (function () {
   const SC = { w: 560, h: 560, x0: 62, x1: 546, y0: 14, y1: 498 };
   const ETA_LO = 1e-4, ETA_HI = 2;
 
-  const S = { set: "centered", n: 30, noise: 0.6, seed: 1, scale: "raw",
+  const S = { kappa: 1.3, offset: 0, seed: 1, scale: "raw",
     view: "contour", log: true };
   // data: raw samples. m, s: the scaling, u = (x - m) / s. q: MSE as a
   // Quadratic in c. dom: scatter domain. hx: x of the two line handles.
@@ -24,6 +24,7 @@ const RegTab = (function () {
   const view = new ParamView($("reg-surf"), {
     labels: ["c₀ (intercept)", "c₁ (slope)"], fname: "MSE",
     onSet: (c, done) => setC(c, done),
+    onHover: () => render(),
   });
   scatter.setAttribute("viewBox", `0 0 ${SC.w} ${SC.h}`);
 
@@ -52,7 +53,7 @@ const RegTab = (function () {
 
   function regen(resetEta) {
     stop();
-    data = makeRegData(S.set, S.n, S.noise, S.seed);
+    data = makeRegData(S.kappa, S.offset, S.seed);
     setScaling();
     q = mseQuadratic(u(), data.y);
     const delta = frameLevel(), start = q.startAt(0.6 * delta);
@@ -125,13 +126,23 @@ const RegTab = (function () {
     return dom.y[0] + (SC.y1 - py) / (SC.y1 - SC.y0) * (dom.y[1] - dom.y[0]);
   }
 
+  /**
+   * The iterate the pointer is hovering on the surface, once the walk has
+   * taken a step; null otherwise.
+   */
+  function hovered() {
+    const h = view.hover, n = runner.trail.length;
+    return h !== null && n > 1 && h < n ? h : null;
+  }
+
   function lineEl(g, c, cls) {
     node("line", { x1: sx(dom.x[0]), y1: sy(yhat(c, dom.x[0])),
       x2: sx(dom.x[1]), y2: sy(yhat(c, dom.x[1])), class: cls }, g);
   }
 
   function drawScatter() {
-    const svg = scatter, c = runner.c;
+    const svg = scatter, h = hovered();
+    const c = h === null ? runner.c : runner.trail[h];
     svg.innerHTML = "";
     const defs = node("defs", {}, svg);
     const clip = node("clipPath", { id: "reg-sc-clip" }, defs);
@@ -161,13 +172,15 @@ const RegTab = (function () {
     lineEl(g, c, "fit");
     data.x.forEach((x, i) => node("circle", { cx: sx(x), cy: sy(data.y[i]),
       r: 6, class: "s", "data-i": i }, g));
-    hx.forEach((x, h) => {
-      const y = yhat(c, x);
-      if (y < dom.y[0] || y > dom.y[1]) return;
-      node("rect", { x: sx(x) - 7, y: sy(y) - 7, width: 14, height: 14,
-        class: "lh", "data-h": h }, g);
-    });
-    legend(svg);
+    if (h === null) {
+      hx.forEach((x, k) => {
+        const y = yhat(c, x);
+        if (y < dom.y[0] || y > dom.y[1]) return;
+        node("rect", { x: sx(x) - 7, y: sy(y) - 7, width: 14, height: 14,
+          class: "lh", "data-h": k }, g);
+      });
+    }
+    legend(svg, h);
     node("rect", { x: SC.x0, y: SC.y0, width: SC.x1 - SC.x0,
       height: SC.y1 - SC.y0, class: "frame" }, svg);
     text(svg, (SC.x0 + SC.x1) / 2, SC.y1 + 40, "x",
@@ -176,12 +189,12 @@ const RegTab = (function () {
       "text-anchor": "middle" });
   }
 
-  /** Key in the empty top-left corner (every set slopes upward). */
-  function legend(svg) {
+  /** Key in the empty top-left corner (the data always slope upward). */
+  function legend(svg, h) {
     const x = SC.x0 + 10, y = SC.y0 + 10;
     const g = node("g", { class: "legend" }, svg);
     node("rect", { x, y, width: 222, height: 88, rx: 6 }, g);
-    const rows = [["fit", "current line ŷ"],
+    const rows = [["fit", h === null ? "current line ŷ" : `line at step ${h}`],
       ["minline", "best line (min MSE)"], ["resid", "error rᵢ = yᵢ − ŷᵢ"]];
     rows.forEach(([cls, label], i) => {
       const ry = y + 19 + 25 * i;
@@ -197,14 +210,16 @@ const RegTab = (function () {
   }
 
   function equation() {
-    const c = runner.c, sign = v => v < 0 ? "−" : "+";
+    const h = hovered(), sign = v => v < 0 ? "−" : "+";
+    const c = h === null ? runner.c : runner.trail[h];
     let xs = "<i>x</i>";
     if (S.scale !== "raw") {
       xs = `(<i>x</i> ${sign(-m)} ${fmt(Math.abs(m))})`;
       if (S.scale === "std") xs += ` / ${fmt(s)}`;
     }
     const model = `<i>c</i>₀ + <i>c</i>₁${S.scale === "raw" ? "" : " "}${xs}`;
-    $("reg-eq").innerHTML = `<i>ŷ</i> = ${model} = ${fmt(c[0])} `
+    $("reg-eq").innerHTML = (h === null ? "" : `step ${h}: `)
+      + `<i>ŷ</i> = ${model} = ${fmt(c[0])} `
       + `${sign(c[1])} ${fmt(Math.abs(c[1]))} ${xs}`;
   }
 
@@ -225,7 +240,9 @@ const RegTab = (function () {
 
   function syncControls() {
     for (const b of document.querySelectorAll("[data-set-reg]")) {
-      b.setAttribute("aria-checked", b.dataset.setReg === S.set);
+      const p = REG_PRESETS[b.dataset.setReg];
+      b.setAttribute("aria-checked",
+        p.kappa === S.kappa && p.offset === S.offset);
     }
     for (const b of document.querySelectorAll("[data-reg-scale]")) {
       b.setAttribute("aria-checked", b.dataset.regScale === S.scale);
@@ -236,10 +253,14 @@ const RegTab = (function () {
     for (const b of document.querySelectorAll("[data-reg-log]")) {
       b.setAttribute("aria-checked", (b.dataset.regLog === "1") === S.log);
     }
-    $("reg-n").value = S.n;
-    $("reg-nval").textContent = String(data.x.length);
-    $("reg-noise").value = S.noise;
-    $("reg-noiseval").textContent = S.noise.toFixed(2);
+    $("reg-kappa").value = Math.log10(S.kappa);
+    // Offset raises the raw-x condition number above the slider's value.
+    const rawKappa = mseQuadratic(data.x, data.y).kappa;
+    $("reg-kappaval").innerHTML = `<i>κ</i> = ${fmt(S.kappa)}`
+      + (S.offset > 0 ? ` <span class="muted">→ ${fmt(rawKappa)} with `
+        + "offset (raw <i>x</i>)</span>" : "");
+    $("reg-offset").value = S.offset;
+    $("reg-offsetval").innerHTML = `mean <i>x</i> = ${fmt(S.offset)}`;
     const e = eta.get();
     $("reg-etaval").innerHTML = `<i>η</i> = ${fmt(e)} <span `
       + `class="muted">(<i>η</i>·<i>L</i> = ${fmt(e * q.L)})</span>`;
@@ -252,14 +273,15 @@ const RegTab = (function () {
         + "move it (hold Shift to change only one parameter); the "
         + "dropline is its MSE."
       : "Drag the point c, or click anywhere, to choose c. Hold Shift to "
-        + "change only one parameter. Bold: the contour through c.";
+        + "change only one parameter. After a step, hover the trail to see "
+        + "that step's line.";
   }
 
   function render() {
     view.render(q, { c: runner.c, trail: runner.trail, eta: eta.get(),
       mode: S.view });
     drawScatter();
-    drawLossChart(chart, runner.losses, q.fmin, S.log, "MSE");
+    drawLossChart(chart, runner.losses, q.fmin, S.log, "MSE", hovered());
     equation();
     readout();
     syncControls();
@@ -321,12 +343,17 @@ const RegTab = (function () {
   // ------------------------------------------------------------ controls
 
   const sets = $("reg-sets");
-  for (const [key, set] of Object.entries(REG_SETS)) {
+  for (const [key, set] of Object.entries(REG_PRESETS)) {
     const b = document.createElement("button");
     b.dataset.setReg = key;
     b.setAttribute("role", "radio");
     b.textContent = set.label;
-    b.onclick = () => { S.set = key; S.scale = "raw"; regen(true); };
+    b.onclick = () => {
+      S.kappa = set.kappa;
+      S.offset = set.offset;
+      S.scale = "raw";
+      regen(true);
+    };
     sets.appendChild(b);
   }
   for (const b of document.querySelectorAll("[data-reg-scale]")) {
@@ -340,8 +367,11 @@ const RegTab = (function () {
   for (const b of document.querySelectorAll("[data-reg-log]")) {
     b.onclick = () => { S.log = b.dataset.regLog === "1"; render(); };
   }
-  $("reg-n").oninput = e => { S.n = +e.target.value; regen(false); };
-  $("reg-noise").oninput = e => { S.noise = +e.target.value; regen(false); };
+  $("reg-kappa").oninput = e => {
+    S.kappa = +(10 ** +e.target.value).toPrecision(2);
+    regen(false);
+  };
+  $("reg-offset").oninput = e => { S.offset = +e.target.value; regen(false); };
   etaInput.oninput = render;
   $("reg-step").onclick = step;
   $("reg-run").onclick = toggleRun;

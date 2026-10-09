@@ -118,12 +118,18 @@
         <li>On <em>Uneven scales</em>, find the largest <i>&eta;</i> that
           converges. How many steps does it take? Switch <em>x</em> to
           <em>Standardized</em> and try again.</li>
-        <li>On <em>Outlier</em>, drag the outlier and watch the
-          dashed best line. Why does one point move the best line so much?
-          <details class="answer"><summary>Answer</summary>Errors are
-            squared: a sample twice as far off costs four times as
-            much.</details>
+        <li>With <em>x</em> on <em>Raw</em>, slide the <em>Offset</em> up
+          from 0. Watch <i>&kappa;</i> climb and the bowl tilt into a thin
+          diagonal valley. Now switch <em>x</em> to <em>Centered</em>: does
+          the offset still matter?
+          <details class="answer"><summary>Answer</summary>No. Centering
+            subtracts the mean of <i>x</i>, so the model sees the same
+            centered data at every offset; only the spread (<i>&kappa;</i>)
+            is left.</details>
         </li>
+        <li>Raise <i>&kappa;</i> and watch the zones bar: the largest safe
+          <i>&eta;</i> shrinks. At a safe <i>&eta;</i>, how many steps does
+          <em>Run</em> take as <i>&kappa;</i> grows?</li>
         <li>Drag the line's square handles until it matches the dashed best
           line. Watch your <b>c</b> walk to the bottom of the
           surface.</li>
@@ -190,12 +196,13 @@
       <div class="card controls">
         <div class="field"><span>Data</span>
           <div class="seg wrap" id="reg-sets" role="radiogroup"></div></div>
-        <label class="slider"><span>Samples</span>
-          <input type="range" id="reg-n" min="5" max="100" step="1">
-          <span id="reg-nval" class="val"></span></label>
-        <label class="slider"><span>Noise</span>
-          <input type="range" id="reg-noise" min="0" max="2" step="0.05">
-          <span id="reg-noiseval" class="val"></span></label>
+        <label class="slider" title="Spread of x: at offset 0 the bowl's
+          condition number is this value"><span>Condition <i>&kappa;</i></span>
+          <input type="range" id="reg-kappa" min="0" max="2" step="0.01">
+          <span id="reg-kappaval" class="val"></span></label>
+        <label class="slider" title="Mean of x"><span>Offset</span>
+          <input type="range" id="reg-offset" min="0" max="10" step="0.25">
+          <span id="reg-offsetval" class="val"></span></label>
         <div class="field"><span><i>x</i></span>
           <div class="seg tight" role="radiogroup">
             <button data-reg-scale="raw" role="radio">Raw</button>

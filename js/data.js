@@ -1,43 +1,46 @@
-// Seeded regression data sets: y = b0 + b1 x + noise on an even spread of x.
+// Seeded regression data: y = b0 + b1 x + noise, with x set by two knobs.
 //
-// The x range is the point of each set. Centered x gives a round-ish MSE
-// bowl; x far from 0 couples intercept and slope into a long thin valley;
-// x with a wide spread makes the slope's curvature dwarf the intercept's.
+// The MSE Hessian is 2 [[1, mean(x)], [mean(x), mean(x^2)]], so x alone
+// sets the bowl's shape. Its spread sd(x) sets the slope's curvature
+// against the intercept's: at mean 0 the condition number is sd(x)^2, so
+// the kappa knob sets sd(x) = sqrt(kappa). Its offset mean(x) couples the
+// two into a diagonal valley and raises kappa further.
 
-const REG_SETS = {
-  centered: { label: "Centered", x: [-2, 2], b: [1, 0.8], ylab: "y" },
-  uncentered: { label: "Uncentered", x: [0, 10], b: [2, 0.5],
-    ylab: "y" },
-  outlier: { label: "Outlier", x: [-2, 2], b: [1, 0.8], ylab: "y",
-    outlier: [1.7, 7] },
-  uneven: { label: "Uneven scales", x: [-10, 10], b: [1, 0.3],
-    ylab: "y" },
+const REG_B = [1, 0.5];
+const REG_N = 30;
+const REG_NOISE = 0.5;
+
+const REG_PRESETS = {
+  centered: { label: "Centered", kappa: 1.3, offset: 0 },
+  uncentered: { label: "Uncentered", kappa: 8.3, offset: 5 },
+  uneven: { label: "Uneven scales", kappa: 33, offset: 0 },
 };
 
 /**
  * Draw a data set.
  *
+ * The seed fixes the standardized draws, so moving kappa or offset
+ * stretches and shifts the same sample rather than drawing a new one.
+ *
  * Args:
- *   key (string): REG_SETS key
- *   n (number): samples
- *   noise (number): noise standard deviation, in y units
+ *   kappa (number): condition number at offset 0; sd(x) = sqrt(kappa)
+ *   offset (number): mean of x
  *   seed (number): random seed
  *
  * Returns:
- *   data (object): { x: (n,) number[], y: (n,) number[] }; Outlier adds
- *     one more sample far above the line
+ *   data (object): { x: (REG_N,) number[], y: (REG_N,) number[] }
  */
-function makeRegData(key, n, noise, seed) {
-  const set = REG_SETS[key], r = rng(seed * 7919 + n);
-  const [lo, hi] = set.x, x = [], y = [];
-  for (let i = 0; i < n; i++) {
-    const xi = lo + (i + r()) / n * (hi - lo);
-    x.push(xi);
-    y.push(set.b[0] + set.b[1] * xi + noise * randn(r));
+function makeRegData(kappa, offset, seed) {
+  const r = rng(seed * 7919 + 17), z = [], e = [];
+  for (let i = 0; i < REG_N; i++) {
+    z.push(-1 + 2 * (i + r()) / REG_N);
+    e.push(randn(r));
   }
-  if (set.outlier) {
-    x.push(set.outlier[0]);
-    y.push(set.outlier[1]);
-  }
+  // Standardize z exactly, so sd(x) and mean(x) hit their targets.
+  const mz = z.reduce((t, v) => t + v, 0) / REG_N;
+  const sz = Math.sqrt(z.reduce((t, v) => t + (v - mz) ** 2, 0) / REG_N);
+  const sd = Math.sqrt(kappa);
+  const x = z.map(v => offset + sd * (v - mz) / sz);
+  const y = x.map((xi, i) => REG_B[0] + REG_B[1] * xi + REG_NOISE * e[i]);
   return { x, y };
 }

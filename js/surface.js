@@ -10,6 +10,8 @@
 // dragging that handle (or clicking in contour mode) sets c through
 // opts.onSet. Holding Shift locks the drag to one parameter: whichever of
 // c0, c1 the pointer has moved further along since the drag began.
+// Hovering (not dragging) picks the trail iterate nearest the pointer as
+// this.hover and reports it through opts.onHover.
 
 const PLOT = { w: 560, h: 560, x0: 62, x1: 546, y0: 14, y1: 498 };
 // Level sets: K levels, each RHO times the excess of the one outside it.
@@ -31,13 +33,17 @@ class ParamView {
    *   svg (SVGElement): the view's SVG
    *   opts (object): { labels: [x, y] axis names, fname: objective name
    *     for the tip label, onSet(c, done): called while dragging (done
-   *     false) and on release }
+   *     false) and on release, onHover(i): optional, the hovered trail
+   *     iterate changed (i null when none); the caller redraws }
    */
   constructor(svg, opts) {
     this.svg = svg;
     this.opts = opts;
     this.cam = { theta: -0.7, phi: 0.62, zoom: 1 };
     this.drag = null;
+    this.hover = null;
+    // Screen positions of the trail iterates, from the last render.
+    this.trailPts = [];
     svg.setAttribute("viewBox", `0 0 ${PLOT.w} ${PLOT.h}`);
     this.listen();
   }
@@ -104,6 +110,10 @@ class ParamView {
     this.q = q;
     this.st = st;
     this.svg.innerHTML = "";
+    this.trailPts = [];
+    if (this.hover !== null && this.hover >= st.trail.length) {
+      this.hover = null;
+    }
     this.svg.classList.toggle("orbit", st.mode === "3d");
     if (st.mode === "3d") this.draw3d(q, st);
     else this.drawContour(q, st);
@@ -214,15 +224,23 @@ class ParamView {
     return ends;
   }
 
-  /** Iterates as a polyline, with dots while there are few enough. */
+  /**
+   * Iterates as a polyline, with dots while there are few enough, and a
+   * ring on the hovered one.
+   */
   trail(g, pts) {
     if (pts.length < 2) return;
+    this.trailPts = pts;
     node("polyline", { points: pts.map(p => p.join(",")).join(" "),
       class: "trail" }, g);
     if (pts.length <= 300) {
       for (const [x, y] of pts.slice(0, -1)) {
         node("circle", { cx: x, cy: y, r: 3, class: "trail-dot" }, g);
       }
+    }
+    if (this.hover !== null && pts[this.hover]) {
+      const [x, y] = pts[this.hover];
+      node("circle", { cx: x, cy: y, r: 7, class: "hover-ring" }, g);
     }
   }
 
@@ -382,13 +400,16 @@ class ParamView {
         if (p.x < P.x0 || p.x > P.x1 || p.y < P.y0 || p.y > P.y1) return;
         this.drag = { tip: true, anchor: this.st.c.slice() };
       }
+      this.hover = null;
       svg.setPointerCapture(e.pointerId);
       e.preventDefault();
       this.move(p, e.shiftKey);
     });
     svg.addEventListener("pointermove", e => {
       if (this.drag) this.move(svgPoint(svg, e), e.shiftKey);
+      else this.hoverAt(svgPoint(svg, e));
     });
+    svg.addEventListener("pointerleave", () => this.setHover(null));
     const end = () => {
       // Clear the drag first so the final redraw drops the Shift guide.
       const d = this.drag;
@@ -404,6 +425,27 @@ class ParamView {
         0.4, 3);
       this.render(this.q, this.st);
     }, { passive: false });
+  }
+
+  /** Hover the trail iterate nearest the pointer, once there is a walk. */
+  hoverAt(p) {
+    const pts = this.trailPts, P = PLOT;
+    const off = this.st.mode !== "3d"
+      && (p.x < P.x0 || p.x > P.x1 || p.y < P.y0 || p.y > P.y1);
+    if (pts.length < 2 || off) { this.setHover(null); return; }
+    let best = 0, bd = Infinity;
+    pts.forEach(([x, y], i) => {
+      const d = (x - p.x) ** 2 + (y - p.y) ** 2;
+      if (d < bd) { bd = d; best = i; }
+    });
+    this.setHover(best);
+  }
+
+  setHover(i) {
+    if (i === this.hover) return;
+    this.hover = i;
+    if (this.opts.onHover) this.opts.onHover(i);
+    else if (this.q) this.render(this.q, this.st);
   }
 
   /** Follow the pointer; shift locks c to one axis through the anchor. */
