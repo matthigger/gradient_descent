@@ -35,7 +35,7 @@ const StepTab = (function () {
   const etaInput = $("st-eta");
   const eta = etaSlider(etaInput, ETA_LO, ETA_HI);
   const view = new ParamView($("st-2d"), {
-    labels: ["c₀", "c₁"], fname: "f", vector: false,
+    labels: ["c₀", "c₁"], fname: "f",
     onSet: c => { stop(); run2.reset(c); render(); },
   });
   view.fit(bowlQuadratic(1, 0), 4.5);
@@ -304,9 +304,9 @@ const StepTab = (function () {
     $("st-hint").textContent = S.dim === 1
       ? "Click or drag to choose the start c."
       : S.view === "3d"
-        ? "Drag to orbit, scroll to zoom. Drag the c tip on the floor to "
+        ? "Drag to orbit, scroll to zoom. Drag the point c on the floor to "
           + "move it."
-        : "Drag the c tip, or click anywhere, to choose c.";
+        : "Drag the point c, or click anywhere, to choose c.";
   }
 
   function render() {

@@ -23,7 +23,7 @@ const RegTab = (function () {
   const etaInput = $("reg-eta");
   const eta = etaSlider(etaInput, ETA_LO, ETA_HI);
   const view = new ParamView($("reg-surf"), {
-    labels: ["c₀ (intercept)", "c₁ (slope)"], fname: "MSE", vector: true,
+    labels: ["c₀ (intercept)", "c₁ (slope)"], fname: "MSE",
     onSet: (c, done) => setC(c, done),
   });
   scatter.setAttribute("viewBox", `0 0 ${SC.w} ${SC.h}`);
@@ -57,7 +57,7 @@ const RegTab = (function () {
     setScaling();
     q = mseQuadratic(u(), data.y);
     const delta = frameLevel(), start = q.startAt(0.6 * delta);
-    view.fit(q, delta, [start, [0, 0]]);
+    view.fit(q, delta, [start]);
     runner = new Runner(q, start, view.scale);
     if (resetEta) eta.set(0.8 / q.L);
     fitScatter();
@@ -80,7 +80,7 @@ const RegTab = (function () {
     setScaling();
     q = mseQuadratic(u(), data.y);
     const c = fromRaw(A, B);
-    view.fit(q, frameLevel(), [c, [0, 0]]);
+    view.fit(q, frameLevel(), [c]);
     runner = new Runner(q, c, view.scale);
     render();
   }
@@ -236,9 +236,9 @@ const RegTab = (function () {
     $("reg-run").disabled = !stopRun && !!runner.status;
     $("reg-step").disabled = !!runner.status;
     $("reg-surf-hint").textContent = S.view === "3d"
-      ? "Drag to orbit, scroll to zoom. Drag the c tip on the floor to "
+      ? "Drag to orbit, scroll to zoom. Drag the point c on the floor to "
         + "move it; the dropline is its MSE."
-      : "Drag the c tip, or click anywhere, to choose c. Bold: the "
+      : "Drag the point c, or click anywhere, to choose c. Bold: the "
         + "contour through c.";
   }
 

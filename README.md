@@ -4,7 +4,7 @@ Interactive teaching demo of gradient descent. Two tabs:
 
 - **Regression.** Fit ŷ = c₀ + c₁x by walking downhill on the MSE surface
   over (c₀, c₁). The surface (contour map, or an orbitable 3D mesh) and the
-  scatter are linked both ways: drag the c vector's tip on the surface, or
+  scatter are linked both ways: drag the point c on the surface, or
   drag the line's handles on the scatter, and the other follows. Drag a
   sample to move it and the surface moves with it. Data sets: Centered,
   Uncentered (long thin valley), Outlier, Uneven scales. The x control

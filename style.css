@@ -339,15 +339,13 @@ svg.orbit { cursor: grab; }
 }
 .trail-dot { fill: #fff; stroke: var(--ink); stroke-width: 1.5;
   pointer-events: none; }
-.cvec line { stroke: var(--ink); stroke-width: 2.5; }
-.cvec polygon { fill: var(--ink); }
 .step line { stroke: #ea580c; stroke-width: 3; }
 .step polygon { fill: #ea580c; }
 .grad line { stroke: var(--ink); stroke-width: 2; stroke-dasharray: 5 4; }
 .grad polygon { fill: var(--ink); }
 .offplot line { stroke: var(--wrong); stroke-width: 3; }
 .offplot polygon { fill: var(--wrong); }
-.cvec, .step, .grad, .offplot { pointer-events: none; }
+.step, .grad, .offplot { pointer-events: none; }
 .handle {
   fill: #ea580c;
   stroke: #fff;

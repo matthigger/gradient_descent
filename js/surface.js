@@ -5,9 +5,10 @@
 // spaced geometrically so the valley floor stays visible however stretched
 // the bowl. Both axes share one scale, so the gradient is perpendicular to
 // the level lines on screen as it is in the math. 3D mode: the same
-// surface as a mesh under an orthographic orbit camera; the c tip slides on
-// the floor plane and a dropline shows its height. In both modes dragging
-// the c tip (or clicking in contour mode) sets c through opts.onSet.
+// surface as a mesh under an orthographic orbit camera; the handle for c
+// slides on the floor plane and a dropline shows its height. In both modes
+// dragging that handle (or clicking in contour mode) sets c through
+// opts.onSet.
 
 const PLOT = { w: 560, h: 560, x0: 62, x1: 546, y0: 14, y1: 498 };
 // Level sets: K levels, each RHO times the excess of the one outside it.
@@ -28,8 +29,8 @@ class ParamView {
    * Args:
    *   svg (SVGElement): the view's SVG
    *   opts (object): { labels: [x, y] axis names, fname: objective name
-   *     for the tip label, vector: draw c as an arrow from the origin,
-   *     onSet(c, done): called while dragging (done false) and on release }
+   *     for the tip label, onSet(c, done): called while dragging (done
+   *     false) and on release }
    */
   constructor(svg, opts) {
     this.svg = svg;
@@ -145,9 +146,6 @@ class ParamView {
     this.trail(g, st.trail.map(p => [this.sx(p[0]), this.sy(p[1])]));
 
     const px = this.sx(c[0]), py = this.sy(c[1]);
-    if (this.opts.vector) {
-      arrow(g, this.sx(0), this.sy(0), px, py, "cvec", 12);
-    }
     this.gradArrows(g, q, st, px, py);
     node("circle", { cx: px, cy: py, r: 8, class: "handle" }, g);
     this.tipLabel(g, q, c, px, py);
@@ -282,10 +280,6 @@ class ParamView {
       "text-anchor": "middle" });
     const c = st.c, w = this.world(c, top);
     const tip = F(w[0], w[1]);
-    if (this.opts.vector) {
-      const o = this.world([0, 0], top), op = F(o[0], o[1]);
-      arrow(svg, op.x, op.y, tip.x, tip.y, "cvec", 12);
-    }
 
     const quads = [];
     for (let i = 0; i < MESH; i++) {

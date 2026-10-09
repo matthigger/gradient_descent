@@ -31,17 +31,16 @@ is uphill and step the other way."
     the valley floor stays visible in ill-conditioned cases. Marks: trail of
     previous iterates (dots joined by segments), optional ★ at the minimum
     (follows the "Show min" toggle).
-  - **The c vector**: current parameters drawn as an arrow from the origin
-    to c = (c₀, c₁), with a draggable tip. Dragging it is the main way to
-    explore: the scatter line, residuals, readout (c, MSE, ∇) and arrows
-    all update live, and an MSE label rides next to the tip. The level line
-    through c is drawn bold, showing every other c with the same MSE.
-    Clicking empty surface jumps c there. Moving c by hand clears the trail
-    and step count (it becomes the new start). When the origin is off-plot
-    (Uncentered, Uneven scales) the arrow tail clips to the edge.
+  - **The point c**: current parameters c = (c₀, c₁) as a draggable
+    point. Dragging it is the main way to explore: the scatter line,
+    residuals, readout (c, MSE, ∇) and arrows all update live, and an MSE
+    label rides next to it. The level line through c is drawn bold, showing
+    every other c with the same MSE. Clicking empty surface jumps c there.
+    Moving c by hand clears the trail and step count (it becomes the new
+    start).
   - 3D toggle: orbitable surface (scroll to zoom, as in
-    `projection_2d_3d`): drag empty space to orbit, drag the c tip to move
-    it. The tip slides along the (c₀, c₁) floor plane, the point rides the
+    `projection_2d_3d`): drag empty space to orbit, drag the c handle to
+    move it. The handle slides along the (c₀, c₁) floor plane, the point rides the
     surface above it, and a dropline from point to floor shows its height
     (= MSE). Trail drawn on the surface.
   - Arrows at the current point: the step −η∇ at true length; with
@@ -147,7 +146,7 @@ Regression
   much? (Answer: errors are squared.)
 - Drag the line by hand toward the dashed min line; watch your point on the
   surface walk to ★.
-- Drag the c tip along the bold level line. MSE stays put, but the line on
+- Drag c along the bold level line. MSE stays put, but the line on
   the scatter changes. Find two very different lines with the same MSE.
 - Drag c in a small circle around ★. Which direction raises MSE fastest?
   Turn on Show gradient to check. (Answer: ∇, perpendicular to the level
