@@ -29,8 +29,7 @@ is uphill and step the other way."
 - **Left: error surface** over (c₀, c₁).
   - Contour view (default): log-spaced filled levels plus level lines, so
     the valley floor stays visible in ill-conditioned cases. Marks: trail of
-    previous iterates (dots joined by segments), optional ★ at the minimum
-    (follows the "Show min" toggle).
+    previous iterates (dots joined by segments), ★ at the minimum.
   - **The point c**: current parameters c = (c₀, c₁) as a draggable
     point. Dragging it is the main way to explore: the scatter line,
     residuals, readout (c, MSE, ∇) and arrows all update live, and an MSE
@@ -44,14 +43,15 @@ is uphill and step the other way."
     move it. The handle slides along the (c₀, c₁) floor plane, the point rides the
     surface above it, and a dropline from point to floor shows its height
     (= MSE). Trail drawn on the surface.
-  - Arrows at the current point: the step −η∇ at true length; with
-    "Show gradient" on, also ∇ itself, drawn uphill at a fixed screen length
-    (its true length is often off-plot).
+  - Arrows at the current point: the step −η∇ at true length, and ∇
+    itself, drawn uphill at a fixed screen length (its true length is often
+    off-plot).
   - Iterates that leave the plot clip to the edge with an arrowhead
     (as `cross_validation` does for error bars).
-- **Right: scatter** of (xᵢ, yᵢ) with the current line ŷ = c₀ + c₁x and
-  vertical residual segments (toggle "Show errors", on by default).
-  "Show min" toggle adds the min-MSE (least-squares) line, dashed.
+- **Right: scatter** of (xᵢ, yᵢ) with the current line ŷ = c₀ + c₁x,
+  vertical residual segments (errors), and the min-MSE (least-squares)
+  line, dashed; a legend in the top-left corner names all three. The
+  header shows the model, ŷ = c₀ + c₁x = <fitted numbers>.
   - Drag a data point to move it: the surface, its minimum, and the min
     line update live.
   - Drag either of two square handles on the line (at the 25th/75th
@@ -79,16 +79,15 @@ Uncentered (centering fixes it) and Uneven scales (standardizing fixes it).
 
 ### Controls (sidebar)
 
-Data set · Samples · Noise · x scaling · Step size η (log slider) ·
-Show step-size zones (off) · Show gradient · Show errors (on) · Show min ·
-Contour / 3D · buttons: **Gradient step**, **Run / Pause**, Reset start,
+Data set · Samples · Noise · x scaling · Step size η (log slider, zones
+bar beneath) · Contour / 3D · buttons: **Gradient step**, **Run / Pause**, Reset start,
 Resample, Reset. Keys: space or → = one step.
 
 Run steps on a timer until converged (|∇| below tolerance or MSE change
 negligible) or diverged (non-finite or MSE > 10⁶ × start), then shows
 "converged in k steps" / "diverged".
 
-### Step-size zones (toggle, off by default)
+### Step-size zones (always shown)
 
 Hessian H = 2 [[1, x̄], [x̄, mean(x²)]] (in the scaled coordinates); L =
 λmax(H). The slider track is colored: η < 1/L "slow / steady",
@@ -98,7 +97,7 @@ Hessian H = 2 [[1, x̄], [x̄, mean(x²)]] (in the scaled coordinates); L =
 
 ## Tab 2: Step size
 
-Switch: **1D | 2D**. Same Gradient step / Run / η slider / zones toggle /
+Switch: **1D | 2D**. Same Gradient step / Run / η slider / zones bar /
 loss chart as Tab 1.
 
 ### 1D
@@ -150,8 +149,8 @@ Regression
 - Drag c along the bold level line. MSE stays put, but the line on
   the scatter changes. Find two very different lines with the same MSE.
 - Drag c in a small circle around ★. Which direction raises MSE fastest?
-  Turn on Show gradient to check. (Answer: ∇, perpendicular to the level
-  line.)
+  Check against the gradient arrow. (Answer: ∇, perpendicular to the
+  level line.)
 
 Step size
 - Parabola: is f′(x) positive or negative to the right of the minimum?
@@ -191,7 +190,7 @@ until the demo is approved.
 ## Decisions (formerly open questions)
 
 1. Loss chart y-axis: log(MSE − min MSE) by default, linear/log switch.
-2. Zones toggle disabled on Two valleys (curvature varies).
+2. No zones bar on Two valleys (curvature varies).
 3. 3D toggle in the 2D-bowl view too (same renderer).
 4. Line dragging on the scatter: two handles at the 25th/75th x-percentiles;
    drag either and the line pivots about the other.

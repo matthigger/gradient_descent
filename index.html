@@ -98,13 +98,14 @@
             of the long thin valley.</details>
         </li>
         <li>Drag <b>c</b> in a small circle around the bottom. Which way
-          does MSE rise fastest? Turn on <em>Show gradient</em> to check.
+          does MSE rise fastest? Check against the dashed gradient arrow.
           <details class="answer"><summary>Answer</summary>Along the
             gradient (dashed arrow), at right angles to the contour
             line.</details>
         </li>
-        <li>Raise <i>&eta;</i> until the walk diverges. Then turn on
-          <em>Show step-size zones</em>: where did it break?</li>
+        <li>Set <i>&eta;</i> in each zone of the colored bar under the
+          slider and press <em>Run</em>. What does the walk do in
+          each?</li>
         <li>On <em>Uncentered</em>, press <em>Run</em>. Why is the valley so
           long and thin?
           <details class="answer"><summary>Answer</summary>The data sit
@@ -116,8 +117,8 @@
         <li>On <em>Uneven scales</em>, find the largest <i>&eta;</i> that
           converges. How many steps does it take? Switch <em>x</em> to
           <em>Standardized</em> and try again.</li>
-        <li>On <em>Outlier</em>, turn on <em>Show min</em> and drag the
-          outlier. Why does one point move the best line so much?
+        <li>On <em>Outlier</em>, drag the outlier and watch the
+          dashed best line. Why does one point move the best line so much?
           <details class="answer"><summary>Answer</summary>Errors are
             squared: a sample twice as far off costs four times as
             much.</details>
@@ -211,16 +212,6 @@
           <button id="reg-restart" title="Back to the start of this walk">
             Reset start</button>
         </div>
-        <div class="checks">
-          <label class="check"><input type="checkbox" id="reg-grad"> Show
-            gradient</label>
-          <label class="check"><input type="checkbox" id="reg-err"> Show
-            errors</label>
-          <label class="check"><input type="checkbox" id="reg-min"> Show
-            min</label>
-          <label class="check"><input type="checkbox" id="reg-zon"> Show
-            step-size zones</label>
-        </div>
         <div class="buttons">
           <button id="reg-resample" title="Draw new samples">&#8635;
             Resample</button>
@@ -307,16 +298,8 @@
           <button id="st-restart" title="Back to the start of this walk">
             Reset start</button>
         </div>
-        <div class="checks">
-          <label class="check"><input type="checkbox" id="st-grad"> Show
-            gradient</label>
-          <label class="check" data-dim="1"><input type="checkbox"
-            id="st-anim"> Animate each step</label>
-          <label class="check" data-dim="2"><input type="checkbox"
-            id="st-min"> Show min</label>
-          <label class="check" id="st-zon-row"><input type="checkbox"
-            id="st-zon"> Show step-size zones</label>
-        </div>
+        <label class="check" data-dim="1"><input type="checkbox"
+          id="st-anim"> Animate each step</label>
       </div>
     </aside>
   </main>

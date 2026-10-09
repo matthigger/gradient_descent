@@ -405,6 +405,8 @@ svg.orbit { cursor: grab; }
 .fit { stroke: #ea580c; stroke-width: 3; pointer-events: none; }
 .minline { stroke: var(--ink); stroke-width: 2; stroke-dasharray: 7 5;
   stroke-opacity: .6; pointer-events: none; }
+.legend rect { fill: #fff; fill-opacity: .88; stroke: var(--line); }
+.legend-label { font-size: 15px; fill: var(--ink); }
 .lh { fill: #fff; stroke: #ea580c; stroke-width: 2.5; cursor: ns-resize; }
 .lh:hover { fill: #fed7aa; }
 

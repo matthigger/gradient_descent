@@ -98,8 +98,7 @@ class ParamView {
    *
    * Args:
    *   q (Quadratic): objective
-   *   st (object): { c, trail, eta, showGrad, showMin, mode:
-   *     "contour" | "3d" }
+   *   st (object): { c, trail, eta, mode: "contour" | "3d" }
    */
   render(q, st) {
     this.q = q;
@@ -149,7 +148,7 @@ class ParamView {
       node("line", { x1: this.sx(a0), y1: this.sy(a1), x2: this.sx(b0),
         y2: this.sy(b1), class: "lockline" }, g);
     }
-    if (st.showMin) this.star(g, cx, cy);
+    this.star(g, cx, cy);
     this.trail(g, st.trail.map(p => [this.sx(p[0]), this.sy(p[1])]));
 
     const px = this.sx(c[0]), py = this.sy(c[1]);
@@ -198,17 +197,14 @@ class ParamView {
   }
 
   /**
-   * The step -eta grad at true length and, with showGrad, the gradient
-   * itself drawn uphill at a fixed screen length (its true length is often
-   * off-plot).
+   * The step -eta grad at true length, and the gradient itself drawn
+   * uphill at a fixed screen length (its true length is often off-plot).
    */
   gradArrows(g, q, st, px, py) {
     const gr = q.grad(st.c), n = Math.hypot(...gr);
     if (!(n > 0)) return;
-    if (st.showGrad) {
-      const ux = gr[0] / n, uy = -gr[1] / n;
-      arrow(g, px, py, px + 70 * ux, py + 70 * uy, "grad", 10);
-    }
+    const ux = gr[0] / n, uy = -gr[1] / n;
+    arrow(g, px, py, px + 70 * ux, py + 70 * uy, "grad", 10);
     const sx = this.sx(st.c[0] - st.eta * gr[0]);
     const sy = this.sy(st.c[1] - st.eta * gr[1]);
     arrow(g, px, py, sx, sy, "step", 11);
@@ -329,10 +325,8 @@ class ParamView {
         points: qd.proj.map(p => `${p.x},${p.y}`).join(" ") }, mesh);
     }
 
-    if (st.showMin) {
-      const s = P(q.cstar);
-      this.star(svg, s.x, s.y);
-    }
+    const sm = P(q.cstar);
+    this.star(svg, sm.x, sm.y);
     const tp = st.trail.map(p => { const r = P(p); return [r.x, r.y]; });
     this.trail(svg, tp);
     const pc = P(c);

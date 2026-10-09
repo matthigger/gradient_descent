@@ -17,7 +17,7 @@ Interactive teaching demo of gradient descent. Two tabs:
   the condition number κ and rotation θ.
 
 Both tabs have Gradient step / Run / Reset start, a log-scale step-size
-slider with optional zones (steady below 1/L, zig-zag to 2/L, diverges
+slider with a zones bar (steady below 1/L, zig-zag to 2/L, diverges
 above, for largest curvature L), a loss-by-step chart (log excess or
 linear), and "Try this" prompts with hidden answers. Space or → takes a
 step.

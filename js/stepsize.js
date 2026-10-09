@@ -25,8 +25,7 @@ const StepTab = (function () {
   const START2 = [-2.5, 1.5];
 
   const S = { dim: 1, fn: "parabola", a: 1, kappa: 10, theta: 0,
-    view: "contour", showGrad: true, anim: true, showMin: true,
-    zones: false, log: true, eta: { 1: 0.1, 2: 0.5 } };
+    view: "contour", anim: true, log: true, eta: { 1: 0.1, 2: 0.5 } };
   let obj1, run1, q2, run2, stopRun = null, anim = null;
 
   const $ = id => document.getElementById(id);
@@ -170,7 +169,7 @@ const StepTab = (function () {
     // Animation phases: 0 tangent, 1 gradient, 2 step, 3 move.
     const c = run1.c[0], f = o.f(c), df = o.df(c);
     const ph = anim ? (performance.now() - anim.t0) / PHASE_MS : 4;
-    const show = k => anim ? ph > k : S.showGrad;
+    const show = k => !anim || ph > k;
     const grow = k => anim ? clamp(ph - k, 0, 1) : 1;
     const px = sx(c), py = cy(f);
     if (show(0)) {
@@ -286,20 +285,13 @@ const StepTab = (function () {
     $("st-theta").value = S.theta;
     $("st-thetaval").textContent = `${S.theta}°`;
     const L = curvature(), e = eta.get();
-    $("st-zon").disabled = L === null;
-    $("st-zon-row").title = L === null
-      ? "The curvature changes along this curve, so no single step size "
-        + "is safe everywhere." : "";
-    const zones = S.zones && L !== null;
-    $("st-etaval").innerHTML = `<i>η</i> = ${fmt(e)}` + (zones
-      ? ` <span class="muted">(<i>η</i>·<i>L</i> = ${fmt(e * L)})</span>`
-      : "");
-    $("st-zones").hidden = !zones;
-    if (zones) drawZones($("st-zones"), eta, L);
-    $("st-grad").checked = S.showGrad;
+    // Two valleys: the curvature varies along the curve, so no zones.
+    $("st-etaval").innerHTML = `<i>η</i> = ${fmt(e)} <span class="muted">`
+      + (L === null ? "(curvature varies: no single safe <i>η</i>)"
+        : `(<i>η</i>·<i>L</i> = ${fmt(e * L)})`) + "</span>";
+    $("st-zones").hidden = L === null;
+    if (L !== null) drawZones($("st-zones"), eta, L);
     $("st-anim").checked = S.anim;
-    $("st-min").checked = S.showMin;
-    $("st-zon").checked = S.zones;
     const r = runner();
     $("st-run").innerHTML = stopRun ? "❚❚ Pause" : "&#9654; Run";
     $("st-run").disabled = !stopRun && !!r.status;
@@ -318,7 +310,7 @@ const StepTab = (function () {
     if (S.dim === 1) draw1d();
     else {
       view.render(q2, { c: r.c, trail: r.trail, eta: eta.get(),
-        showGrad: S.showGrad, showMin: S.showMin, mode: S.view });
+        mode: S.view });
     }
     const fmin = S.dim === 1 ? obj1.fmin : 0;
     drawLossChart(chart, r.losses, fmin, S.log, "f");
@@ -396,10 +388,7 @@ const StepTab = (function () {
     r.reset(r.trail[0]);
     render();
   };
-  $("st-grad").onchange = e => { S.showGrad = e.target.checked; render(); };
   $("st-anim").onchange = e => { S.anim = e.target.checked; render(); };
-  $("st-min").onchange = e => { S.showMin = e.target.checked; render(); };
-  $("st-zon").onchange = e => { S.zones = e.target.checked; render(); };
 
   run1 = new Runner(make1(), [d1().start], 6);
   run2 = new Runner(make2(), START2, view.scale);

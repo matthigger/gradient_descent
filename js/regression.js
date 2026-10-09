@@ -11,7 +11,6 @@ const RegTab = (function () {
   const ETA_LO = 1e-4, ETA_HI = 2;
 
   const S = { set: "centered", n: 30, noise: 0.6, seed: 1, scale: "raw",
-    showGrad: false, showErr: true, showMin: false, zones: false,
     view: "contour", log: true };
   // data: raw samples. m, s: the scaling, u = (x - m) / s. q: MSE as a
   // Quadratic in c. dom: scatter domain. hx: x of the two line handles.
@@ -153,14 +152,12 @@ const RegTab = (function () {
     const g = node("g", { "clip-path": "url(#reg-sc-clip)" }, svg);
     node("rect", { x: SC.x0, y: SC.y0, width: SC.x1 - SC.x0,
       height: SC.y1 - SC.y0, class: "sc-bg" }, g);
-    if (S.showErr) {
-      for (let i = 0; i < data.x.length; i++) {
-        const x = sx(data.x[i]);
-        node("line", { x1: x, x2: x, y1: sy(data.y[i]),
-          y2: sy(yhat(c, data.x[i])), class: "resid" }, g);
-      }
+    for (let i = 0; i < data.x.length; i++) {
+      const x = sx(data.x[i]);
+      node("line", { x1: x, x2: x, y1: sy(data.y[i]),
+        y2: sy(yhat(c, data.x[i])), class: "resid" }, g);
     }
-    if (S.showMin) lineEl(g, q.cstar, "minline");
+    lineEl(g, q.cstar, "minline");
     lineEl(g, c, "fit");
     data.x.forEach((x, i) => node("circle", { cx: sx(x), cy: sy(data.y[i]),
       r: 6, class: "s", "data-i": i }, g));
@@ -170,12 +167,33 @@ const RegTab = (function () {
       node("rect", { x: sx(x) - 7, y: sy(y) - 7, width: 14, height: 14,
         class: "lh", "data-h": h }, g);
     });
+    legend(svg);
     node("rect", { x: SC.x0, y: SC.y0, width: SC.x1 - SC.x0,
       height: SC.y1 - SC.y0, class: "frame" }, svg);
     text(svg, (SC.x0 + SC.x1) / 2, SC.y1 + 40, "x",
       { class: "axis-label sym", "text-anchor": "middle" });
     text(svg, 16, (SC.y0 + SC.y1) / 2, "y", { class: "axis-label sym",
       "text-anchor": "middle" });
+  }
+
+  /** Key in the empty top-left corner (every set slopes upward). */
+  function legend(svg) {
+    const x = SC.x0 + 10, y = SC.y0 + 10;
+    const g = node("g", { class: "legend" }, svg);
+    node("rect", { x, y, width: 222, height: 88, rx: 6 }, g);
+    const rows = [["fit", "current line ŷ"],
+      ["minline", "best line (min MSE)"], ["resid", "error rᵢ = yᵢ − ŷᵢ"]];
+    rows.forEach(([cls, label], i) => {
+      const ry = y + 19 + 25 * i;
+      if (cls === "resid") {
+        node("line", { x1: x + 22, x2: x + 22, y1: ry - 8, y2: ry + 8,
+          class: cls }, g);
+      } else {
+        node("line", { x1: x + 10, x2: x + 34, y1: ry, y2: ry, class: cls },
+          g);
+      }
+      text(g, x + 44, ry + 5, label, { class: "legend-label" });
+    });
   }
 
   function equation() {
@@ -185,8 +203,9 @@ const RegTab = (function () {
       xs = `(<i>x</i> ${sign(-m)} ${fmt(Math.abs(m))})`;
       if (S.scale === "std") xs += ` / ${fmt(s)}`;
     }
-    $("reg-eq").innerHTML = `<i>ŷ</i> = ${fmt(c[0])} ${sign(c[1])} `
-      + `${fmt(Math.abs(c[1]))} ${xs}`;
+    const model = `<i>c</i>₀ + <i>c</i>₁${S.scale === "raw" ? "" : " "}${xs}`;
+    $("reg-eq").innerHTML = `<i>ŷ</i> = ${model} = ${fmt(c[0])} `
+      + `${sign(c[1])} ${fmt(Math.abs(c[1]))} ${xs}`;
   }
 
   function readout() {
@@ -197,9 +216,7 @@ const RegTab = (function () {
       ["∇MSE(<b>c</b>)", fmtCol(g)],
       ["‖∇MSE(<b>c</b>)‖", fmt(Math.hypot(...g))],
     ];
-    if (S.showMin) {
-      rows.push(["min MSE", fmt(q.fmin)], ["at <b>c</b>*", fmtCol(q.cstar)]);
-    }
+    rows.push(["min MSE", fmt(q.fmin)], ["at <b>c</b>*", fmtCol(q.cstar)]);
     rows.push(["condition number <i>κ</i>", fmt(q.kappa)]);
     $("reg-readout").innerHTML = rows.map(([k, v]) =>
       `<div class="row"><span>${k}</span><span class="val">${v}</span></div>`
@@ -224,15 +241,9 @@ const RegTab = (function () {
     $("reg-noise").value = S.noise;
     $("reg-noiseval").textContent = S.noise.toFixed(2);
     const e = eta.get();
-    $("reg-etaval").innerHTML = `<i>η</i> = ${fmt(e)}`
-      + (S.zones ? ` <span class="muted">(<i>η</i>·<i>L</i> = `
-        + `${fmt(e * q.L)})</span>` : "");
-    $("reg-zones").hidden = !S.zones;
-    if (S.zones) drawZones($("reg-zones"), eta, q.L);
-    $("reg-grad").checked = S.showGrad;
-    $("reg-err").checked = S.showErr;
-    $("reg-min").checked = S.showMin;
-    $("reg-zon").checked = S.zones;
+    $("reg-etaval").innerHTML = `<i>η</i> = ${fmt(e)} <span `
+      + `class="muted">(<i>η</i>·<i>L</i> = ${fmt(e * q.L)})</span>`;
+    drawZones($("reg-zones"), eta, q.L);
     $("reg-run").innerHTML = stopRun ? "❚❚ Pause" : "&#9654; Run";
     $("reg-run").disabled = !stopRun && !!runner.status;
     $("reg-step").disabled = !!runner.status;
@@ -246,7 +257,7 @@ const RegTab = (function () {
 
   function render() {
     view.render(q, { c: runner.c, trail: runner.trail, eta: eta.get(),
-      showGrad: S.showGrad, showMin: S.showMin, mode: S.view });
+      mode: S.view });
     drawScatter();
     drawLossChart(chart, runner.losses, q.fmin, S.log, "MSE");
     equation();
@@ -335,10 +346,6 @@ const RegTab = (function () {
   $("reg-step").onclick = step;
   $("reg-run").onclick = toggleRun;
   $("reg-restart").onclick = () => setC(runner.trail[0]);
-  $("reg-grad").onchange = e => { S.showGrad = e.target.checked; render(); };
-  $("reg-err").onchange = e => { S.showErr = e.target.checked; render(); };
-  $("reg-min").onchange = e => { S.showMin = e.target.checked; render(); };
-  $("reg-zon").onchange = e => { S.zones = e.target.checked; render(); };
   $("reg-resample").onclick = () => { S.seed += 1; regen(false); };
   $("reg-reset").onclick = () => regen(false);
 
