@@ -36,6 +36,7 @@ const StepTab = (function () {
   const view = new ParamView($("st-2d"), {
     labels: ["c₀", "c₁"], fname: "f",
     onSet: c => { stop(); run2.reset(c); render(); },
+    onHover: () => render(),
   });
   view.fit(bowlQuadratic(1, 0), 4.5);
   svg1.setAttribute("viewBox", `0 0 ${P1.w} ${P1.h}`);
@@ -229,8 +230,15 @@ const StepTab = (function () {
 
   // ------------------------------------------------------- render
 
+  /** Hovered 2D iterate, once the walk has a step; null otherwise. */
+  function hovered() {
+    const h = view.hover, n = run2.trail.length;
+    return S.dim === 2 && h !== null && n > 1 && h < n ? h : null;
+  }
+
   function readout() {
-    const r = runner(), c = r.c, rows = [];
+    const r = runner(), h = hovered(), rows = [];
+    const c = h === null ? r.c : r.trail[h];
     if (S.dim === 1) {
       rows.push(["<i>c</i>", fmt(c[0])],
         ["<i>f</i>(<i>c</i>)", fmt(obj1.f(c[0]))],
@@ -249,7 +257,7 @@ const StepTab = (function () {
     }
     $("st-readout").innerHTML = rows.map(([k, v]) =>
       `<div class="row"><span>${k}</span><span class="val">${v}</span></div>`
-    ).join("") + `<p class="status ${r.status}">${r.describe()}</p>`;
+    ).join("") + statusLine(r, h);
   }
 
   function syncControls() {
@@ -311,7 +319,7 @@ const StepTab = (function () {
         mode: S.view });
     }
     const fmin = S.dim === 1 ? obj1.fmin : 0;
-    drawLossChart(chart, r.losses, fmin, S.log, "f");
+    drawLossChart(chart, r.losses, fmin, S.log, "f", hovered());
     readout();
     syncControls();
   }

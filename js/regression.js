@@ -224,7 +224,8 @@ const RegTab = (function () {
   }
 
   function readout() {
-    const c = runner.c, g = q.grad(c);
+    const h = hovered(), c = h === null ? runner.c : runner.trail[h];
+    const g = q.grad(c);
     const rows = [
       [`<b>c</b> = ${colVec(["<i>c</i>₀", "<i>c</i>₁"])}`, fmtCol(c)],
       ["MSE(<b>c</b>)", fmt(q.f(c))],
@@ -235,15 +236,10 @@ const RegTab = (function () {
     rows.push(["condition number <i>κ</i>", fmt(q.kappa)]);
     $("reg-readout").innerHTML = rows.map(([k, v]) =>
       `<div class="row"><span>${k}</span><span class="val">${v}</span></div>`
-    ).join("") + `<p class="status ${runner.status}">${runner.describe()}</p>`;
+    ).join("") + statusLine(runner, h);
   }
 
   function syncControls() {
-    for (const b of document.querySelectorAll("[data-set-reg]")) {
-      const p = REG_PRESETS[b.dataset.setReg];
-      b.setAttribute("aria-checked",
-        p.kappa === S.kappa && p.offset === S.offset);
-    }
     for (const b of document.querySelectorAll("[data-reg-scale]")) {
       b.setAttribute("aria-checked", b.dataset.regScale === S.scale);
     }
@@ -342,20 +338,6 @@ const RegTab = (function () {
 
   // ------------------------------------------------------------ controls
 
-  const sets = $("reg-sets");
-  for (const [key, set] of Object.entries(REG_PRESETS)) {
-    const b = document.createElement("button");
-    b.dataset.setReg = key;
-    b.setAttribute("role", "radio");
-    b.textContent = set.label;
-    b.onclick = () => {
-      S.kappa = set.kappa;
-      S.offset = set.offset;
-      S.scale = "raw";
-      regen(true);
-    };
-    sets.appendChild(b);
-  }
   for (const b of document.querySelectorAll("[data-reg-scale]")) {
     b.onclick = () => {
       if (b.dataset.regScale !== S.scale) rescale(b.dataset.regScale);

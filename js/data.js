@@ -10,12 +10,6 @@ const REG_B = [1, 0.5];
 const REG_N = 30;
 const REG_NOISE = 0.5;
 
-const REG_PRESETS = {
-  centered: { label: "Centered", kappa: 1.3, offset: 0 },
-  uncentered: { label: "Uncentered", kappa: 8.3, offset: 5 },
-  uneven: { label: "Uneven scales", kappa: 33, offset: 0 },
-};
-
 /**
  * Draw a data set.
  *

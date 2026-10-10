@@ -141,6 +141,18 @@ function etaSlider(input, lo, hi) {
 }
 
 /**
+ * Readout status: which step the readout shows while hovering the trail,
+ * else the run's progress.
+ */
+function statusLine(runner, hover) {
+  if (hover !== null) {
+    return `<p class="status hovering">Showing step ${hover} of `
+      + `${runner.steps} (hovering).</p>`;
+  }
+  return `<p class="status ${runner.status}">${runner.describe()}</p>`;
+}
+
+/**
  * Fill the zones bar under an eta slider for curvature L.
  *
  * Gradient descent on a bowl with largest curvature L converges for

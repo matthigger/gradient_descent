@@ -68,23 +68,21 @@ y = 1 + 0.5x + noise (n = 30, sd 0.5), seeded, with Resample and Reset
 (undo drags). Two sliders set x: **condition number κ** (sd(x) = √κ, so
 the bowl's κ is exactly the slider value at offset 0) and **offset**
 (mean x, which raises κ further; the slider shows the resulting raw-x κ).
-Moving them stretches and shifts the same sample. Presets:
+Moving them stretches and shifts the same sample. Offset sits above κ,
+matching the order of their fixes in the x control (Centered, then
+Standardized), and each slider's name carries a hover explanation of the
+problem and its fix. Start: κ 1.3, offset 0.
 
-| preset | κ, offset | what it teaches |
-|--------|-----------|-----------------|
-| Centered | 1.3, 0 | round-ish bowl, descent heads straight in |
-| Uncentered | 8.3, 5 (x in 0..10) | c₀, c₁ strongly coupled: long thin diagonal valley; zig-zag/crawl |
-| Uneven scales | 33, 0 (x in −10..10) | slope curvature ≫ intercept curvature: max safe η is tiny and c₀ barely moves |
 
 **x-scaling control** (segmented): Raw | Centered | Standardized. The model
 becomes ŷ = c₀ + c₁(x − x̄) or ŷ = c₀ + c₁(x − x̄)/s; surface axis labels
 change accordingly ("c₀ = ŷ at x̄"). The scatter always shows raw x, so the
-same best line is visibly reached faster. This one control serves both
-Uncentered (centering fixes it) and Uneven scales (standardizing fixes it).
+same best line is visibly reached faster. This one control fixes both
+sliders' problems: centering undoes the offset, standardizing the spread.
 
 ### Controls (sidebar)
 
-Data preset · Condition κ · Offset · x scaling · Step size η (log slider, zones
+Offset · Condition κ · x scaling · Step size η (log slider, zones
 bar beneath) · Contour / 3D · buttons: **Gradient step**, **Run / Pause**, Reset start,
 Resample, Reset. Keys: space or → = one step.
 
@@ -141,14 +139,13 @@ Regression
 - Set a start far from the minimum and step. Which way does the step arrow point,
   relative to the contour lines? (Answer: perpendicular, straight downhill
   locally, not at the minimum.)
-- Raise η until it diverges. Turn on zones: where did it break?
-- Uncentered, Raw: Run. Why the long thin valley? (Answer: raising c₁ while
-  lowering c₀ pivots the line around the data's center, which barely
-  changes MSE; that pair of moves is the valley floor.) Switch to Centered.
-- Uneven scales: find the largest η that converges; how far has c₀ moved
-  after 100 steps? Standardize and repeat.
-- With x Raw, slide the offset up: κ climbs and the bowl tilts into a
-  diagonal valley. Switch x to Centered: the offset no longer matters.
+- Set η in each zone of the bar and Run: what does the walk do in each?
+- x Raw, offset 5: Run. Why the long thin valley? (Answer: raising c₁
+  while lowering c₀ pivots the line around the data's center, which
+  barely changes MSE; that pair of moves is the valley floor.) Switch to
+  Centered: the offset no longer matters.
+- Offset 0, raise κ: the largest safe η shrinks and Run takes more steps.
+  Standardize and repeat.
 - Drag the line by hand toward the dashed min line; watch your point on the
   surface walk to the bottom.
 - Drag c along the bold level line. MSE stays put, but the line on

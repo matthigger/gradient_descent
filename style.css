@@ -254,6 +254,7 @@ footer a { color: inherit; }
 .status.converged { color: var(--test-ink); }
 .status.diverged { color: var(--wrong); }
 .status.capped { color: #9a3412; }
+.status.hovering { color: #ea580c; }
 button.primary {
   background: var(--ink) !important;
   border-color: var(--ink) !important;
@@ -267,6 +268,30 @@ button:disabled { opacity: .45; cursor: default; }
 .seg.small button { padding: 2px 10px !important; font-size: .82rem; }
 
 /* Step-size zones, under the eta slider. */
+/* Hover (or focus) explanation on a control's name. */
+.tip {
+  position: relative;
+  cursor: help;
+  text-decoration: underline dotted #8a93a3;
+  text-underline-offset: 3px;
+}
+.tip:hover::after, .tip:focus::after {
+  content: attr(data-tip);
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  top: calc(100% + 6px);
+  width: 290px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: #fff;
+  font-size: .82rem;
+  font-style: normal;
+  line-height: 1.4;
+  white-space: normal;
+  box-shadow: 0 6px 20px rgba(16, 24, 40, .18);
+}
 .zones {
   grid-column: 2;
   position: relative;

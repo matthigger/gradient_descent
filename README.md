@@ -7,12 +7,12 @@ Interactive teaching demo of gradient descent. Two tabs:
   scatter are linked both ways: drag the point c on the surface, or
   drag the line's handles on the scatter, and the other follows. Drag a
   sample to move it and the surface moves with it. Hover the trail to see
-  any step's line. The data's x is set by two sliders: condition number κ
-  (its spread; κ exactly, at offset 0) and offset (its mean, which couples
-  intercept and slope into a diagonal valley), with presets Centered,
-  Uncentered and Uneven scales. The x control (Raw / Centered /
-  Standardized) keeps the same line but reshapes the surface, which is the
-  cure for both kinds of bad conditioning.
+  any step's line. The data's x is set by two sliders, each with a hover
+  explanation naming its fix: offset (its mean, which couples intercept
+  and slope into a diagonal valley; fixed by Centered) and condition
+  number κ (its spread; κ exactly, at offset 0; fixed by Standardized).
+  The x control (Raw / Centered / Standardized) keeps the same line but
+  reshapes the surface.
 - **Step size.** 1D: a parabola f(c) = a(c − c*)² with a curvature slider,
   or a two-valley function; Gradient step can play out in phases (tangent,
   gradient pointing uphill, step against it, move). 2D: a quadratic bowl

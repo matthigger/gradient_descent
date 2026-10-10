@@ -91,8 +91,8 @@
         <li>Hold Shift and drag <b>c</b> left and right: only the
           intercept changes, and the line slides up and down. Now up and
           down: only the slope changes, and the line pivots about
-          <i>x</i> = 0. On <em>Uncentered</em>, why does a small slope
-          change cost so much more MSE than on <em>Centered</em>?
+          <i>x</i> = 0. With the <em>Offset</em> at 5, why does a small
+          slope change cost so much more MSE than at offset 0?
           <details class="answer"><summary>Answer</summary>The line pivots
             about <i>x</i> = 0, far from the data, so a small turn swings
             it away from every sample at once. That is the steep direction
@@ -107,29 +107,21 @@
         <li>Set <i>&eta;</i> in each zone of the colored bar under the
           slider and press <em>Run</em>. What does the walk do in
           each?</li>
-        <li>On <em>Uncentered</em>, press <em>Run</em>. Why is the valley so
-          long and thin?
+        <li>With <em>x</em> on <em>Raw</em>, slide the <em>Offset</em> up
+          to 5. Your <i>&eta;</i> is now in the red zone: lower it into the
+          green and press <em>Run</em>. Why does the bowl become a long,
+          thin diagonal valley?
           <details class="answer"><summary>Answer</summary>The data sit
             far from <i>x</i> = 0. Raising the slope while lowering the
             intercept pivots the line about the middle of the data, which
             barely changes MSE: that pair of moves is the valley floor.
-            Switch <em>x</em> to <em>Centered</em> and run again.</details>
+            Switch <em>x</em> to <em>Centered</em>: subtracting the mean of
+            <i>x</i> undoes the offset, and the valley is gone.</details>
         </li>
-        <li>On <em>Uneven scales</em>, find the largest <i>&eta;</i> that
-          converges. How many steps does it take? Switch <em>x</em> to
+        <li>At offset 0, raise <i>&kappa;</i> and watch the zones bar: the
+          largest safe <i>&eta;</i> shrinks. At a safe <i>&eta;</i>, how
+          many steps does <em>Run</em> take? Switch <em>x</em> to
           <em>Standardized</em> and try again.</li>
-        <li>With <em>x</em> on <em>Raw</em>, slide the <em>Offset</em> up
-          from 0. Watch <i>&kappa;</i> climb and the bowl tilt into a thin
-          diagonal valley. Now switch <em>x</em> to <em>Centered</em>: does
-          the offset still matter?
-          <details class="answer"><summary>Answer</summary>No. Centering
-            subtracts the mean of <i>x</i>, so the model sees the same
-            centered data at every offset; only the spread (<i>&kappa;</i>)
-            is left.</details>
-        </li>
-        <li>Raise <i>&kappa;</i> and watch the zones bar: the largest safe
-          <i>&eta;</i> shrinks. At a safe <i>&eta;</i>, how many steps does
-          <em>Run</em> take as <i>&kappa;</i> grows?</li>
         <li>Drag the line's square handles until it matches the dashed best
           line. Watch your <b>c</b> walk to the bottom of the
           surface.</li>
@@ -194,15 +186,24 @@
 
     <aside class="side">
       <div class="card controls">
-        <div class="field"><span>Data</span>
-          <div class="seg wrap" id="reg-sets" role="radiogroup"></div></div>
-        <label class="slider" title="Spread of x: at offset 0 the bowl's
-          condition number is this value"><span>Condition <i>&kappa;</i></span>
-          <input type="range" id="reg-kappa" min="0" max="2" step="0.01">
-          <span id="reg-kappaval" class="val"></span></label>
-        <label class="slider" title="Mean of x"><span>Offset</span>
+        <label class="slider"><span class="tip" tabindex="0"
+          data-tip="The mean of x. Data far from x = 0 tie the intercept
+          and slope together: turning the line about x = 0 swings it away
+          from every sample, so the bowl stretches into a long diagonal
+          valley and κ grows. Fix: x Centered subtracts the mean, so the
+          offset stops mattering.">Offset</span>
           <input type="range" id="reg-offset" min="0" max="10" step="0.25">
           <span id="reg-offsetval" class="val"></span></label>
+        <label class="slider"><span class="tip" tabindex="0"
+          data-tip="The spread of x. κ (condition number) is how much
+          steeper the bowl is in its steepest direction than its
+          shallowest; at offset 0 it equals the variance of x. A wide
+          spread makes MSE far more sensitive to the slope than the
+          intercept: the steep direction caps the step size, so the
+          shallow one crawls. Fix: x Standardized also divides by the
+          spread, making κ = 1.">Condition <i>&kappa;</i></span>
+          <input type="range" id="reg-kappa" min="0" max="2" step="0.01">
+          <span id="reg-kappaval" class="val"></span></label>
         <div class="field"><span><i>x</i></span>
           <div class="seg tight" role="radiogroup">
             <button data-reg-scale="raw" role="radio">Raw</button>
