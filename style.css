@@ -531,6 +531,8 @@ table.rules {
   border: 1.5px solid currentColor;
 }
 .mat::before { left: 0; border-right: 0; }
+/* A matrix times a vector: keep the brackets from touching. */
+.mat + .colvec, .mat + .mat, .colvec + .colvec { margin-left: .6em; }
 .mat::after { right: 0; border-left: 0; }
 .check { margin: 8px 0; font-size: .92rem; line-height: 1.5; }
 .bands { image-rendering: auto; }
