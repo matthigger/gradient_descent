@@ -15,8 +15,10 @@ is uphill and step the other way."
 ## Tab 0: Gradient (`#gradient`)
 
 Opens the page (tabs run in lesson order: Gradient, Step size,
-Regression). The intro holds the day 10 gradient facts and the reference
-rules table; clicking a row opens that rule.
+Regression). The intro's left column holds the gradient's definition (w
+and ∇f as column vectors ending in ⋮) and three facts (‖∇f‖ is how fast f
+changes, ∇f points to greatest increase, ∇f = 0 at critical points); the
+right column holds the reference rules table, whose rows open that rule.
 
 - **Rules:** sum (c‖Xw − y‖² + λ‖w‖², ridge), linear aᵀw, quadratic wᵀAw,
   chain g(aᵀw) with g ∈ {eᶻ, σ, log(1 + e⁻ᶻ), z²}, ‖w‖², ‖Xw − y‖² on a
@@ -24,11 +26,9 @@ rules table; clicking a row opens that rule.
   value labels), gray gradient field at one scale, a draggable probe w
   (snaps to 0.1) with its ∇f(w) arrow, and a card working the rule with w
   plugged in. The sum rule draws its parts tip to tail.
-- **Exercises:** six functions (1 is the day 10 in-class activity with
-  jump buttons to its points). Students type ∂f/∂w₀ and ∂f/∂w₁ (w0, w1,
-  implicit multiplication, exp, log, sigma, ^); the answer is checked on a
-  6 × 6 grid and the first mismatch reported, and their arrow is drawn
-  over the true one. Hint and Reveal per exercise.
+- **Contour / 3D:** the 3D view is an orbitable mesh of f (shared camera
+  with the regression tab); w moves on the floor, a dropline shows f(w),
+  and the field and probe arrows lie on the floor, in w-space.
 
 ## Tab 1: Regression
 

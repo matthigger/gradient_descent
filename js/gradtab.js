@@ -1,6 +1,5 @@
 // Gradient tab: the gradient rules of day 10, each drawn as a contour map
-// with its gradient field, and exercises where students type the gradient
-// they computed and see it checked against the true one.
+// (or a 3D surface) with its gradient field.
 //
 // Rules follow the lecture's reference table: sum, linear (a'w), quadratic
 // (w'Aw), chain (g(a'w)), and the special cases ||w||^2 and ||Xw - y||^2.
@@ -13,8 +12,6 @@ const GradTab = (function () {
   const sig = z => 1 / (1 + Math.exp(-z));
   const B = s => `<b>${s}</b>`;
   const W = colVec(["<i>w</i>₀", "<i>w</i>₁"]);
-  const esc = s => s.replace(/[&<>"]/g, ch =>
-    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch]);
 
   // Small regression data for ||Xw - y||^2: rows [1, x_i], so w0 is the
   // intercept and w1 the slope, as on the regression tab.
@@ -143,180 +140,32 @@ const GradTab = (function () {
     },
   };
 
-  /**
-   * Exercises: students type each partial; checked on a grid of points.
-   * points: quick-jump positions (the in-class activity's).
-   */
-  const EX = [
-    { label: "1. Activity", fHTML: "<i>f</i>(<b>w</b>) = (<i>w</i>₀ − 2)² + 3(<i>w</i>₁ − 1)²",
-      f: w => (w[0] - 2) ** 2 + 3 * (w[1] - 1) ** 2,
-      grad: w => [2 * (w[0] - 2), 6 * (w[1] - 1)],
-      mid: [1.5, 0.5], hw: 3, start: [0, 0], points: [[0, 0], [2, 0], [3, 1]],
-      hint: "Each term depends on one input: take each partial with the 1-D "
-        + "power and chain rules, treating the other input as a constant.",
-      answer: "∇<i>f</i>(<b>w</b>) = [2(<i>w</i>₀ − 2), 6(<i>w</i>₁ − 1)]ᵀ. At the "
-        + "three points: [−4, −6]ᵀ, [0, −6]ᵀ, [2, 0]ᵀ. It vanishes at "
-        + "<b>w</b> = [2, 1]ᵀ, the minimum." },
-    { label: "2", fHTML: "<i>f</i>(<b>w</b>) = 3<i>w</i>₀ − 2<i>w</i>₁ + 5",
-      f: w => 3 * w[0] - 2 * w[1] + 5, grad: () => [3, -2],
-      mid: [0, 0], hw: 3, start: [1, 1],
-      hint: "Rule 1 (linear) with <b>a</b> = [3, −2]ᵀ; a constant has zero "
-        + "gradient.",
-      answer: "∇<i>f</i>(<b>w</b>) = [3, −2]ᵀ, the same everywhere." },
-    { label: "3", fHTML: "<i>f</i>(<b>w</b>) = <i>w</i>₀² + 4<i>w</i>₀<i>w</i>₁ + <i>w</i>₁²",
-      f: w => w[0] ** 2 + 4 * w[0] * w[1] + w[1] ** 2,
-      grad: w => [2 * w[0] + 4 * w[1], 4 * w[0] + 2 * w[1]],
-      mid: [0, 0], hw: 3, start: [1.5, 0.5],
-      hint: "Write it as <b>w</b>ᵀ<i>A</i><b>w</b> with a symmetric <i>A</i> "
-        + "(split 4<i>w</i>₀<i>w</i>₁ evenly between <i>A</i>₀₁ and "
-        + "<i>A</i>₁₀), then use rule 2. Or take the partials directly.",
-      answer: "<i>A</i> = [[1, 2], [2, 1]], so ∇<i>f</i>(<b>w</b>) = 2<i>A</i><b>w</b> "
-        + "= [2<i>w</i>₀ + 4<i>w</i>₁, 4<i>w</i>₀ + 2<i>w</i>₁]ᵀ. It is zero only at "
-        + "<b>w</b> = 0, which is a saddle, not a minimum: <i>f</i> rises along "
-        + "<i>w</i>₀ = <i>w</i>₁ and falls along <i>w</i>₀ = −<i>w</i>₁." },
-    { label: "4", fHTML: "<i>f</i>(<b>w</b>) = <i>e</i><sup><i>w</i>₀ + 2<i>w</i>₁</sup>",
-      f: w => Math.exp(w[0] + 2 * w[1]),
-      grad: w => { const e = Math.exp(w[0] + 2 * w[1]); return [e, 2 * e]; },
-      mid: [-1, -0.5], hw: 1.5, start: [-1, 0],
-      hint: "Rule 3 (chain) with <i>g</i>(<i>z</i>) = <i>e<sup>z</sup></i> and "
-        + "<b>a</b> = [1, 2]ᵀ.",
-      answer: "∇<i>f</i>(<b>w</b>) = <i>e</i><sup><i>w</i>₀ + 2<i>w</i>₁</sup> "
-        + "[1, 2]ᵀ: always parallel to <b>a</b>, growing with <i>f</i>." },
-    { label: "5", fHTML: "<i>f</i>(<b>w</b>) = σ(2<i>w</i>₀ − <i>w</i>₁)",
-      f: w => sig(2 * w[0] - w[1]),
-      grad: w => { const s = sig(2 * w[0] - w[1]), d = s * (1 - s); return [2 * d, -d]; },
-      mid: [0, 0], hw: 3, start: [0.5, 0.5],
-      hint: "Rule 3 with <i>g</i> = σ and <b>a</b> = [2, −1]ᵀ; use "
-        + "σ′ = σ(1 − σ) from the 1-D activity. Type σ as sigma(...).",
-      answer: "With <i>z</i> = 2<i>w</i>₀ − <i>w</i>₁: ∇<i>f</i>(<b>w</b>) = "
-        + "σ(<i>z</i>)(1 − σ(<i>z</i>)) [2, −1]ᵀ. It is largest where "
-        + "<i>z</i> = 0 and fades to 0 where σ flattens out." },
-    { label: "6", fHTML: "<i>f</i>(<b>w</b>) = (<i>w</i>₀ + <i>w</i>₁ − 3)² + 2‖<b>w</b>‖²",
-      f: w => (w[0] + w[1] - 3) ** 2 + 2 * (w[0] ** 2 + w[1] ** 2),
-      grad: w => [6 * w[0] + 2 * w[1] - 6, 2 * w[0] + 6 * w[1] - 6],
-      mid: [0.5, 0.5], hw: 2.5, start: [2, -1],
-      hint: "Sum rule. The first term is rule 3 with <b>a</b> = [1, 1]ᵀ and "
-        + "<i>g</i>(<i>z</i>) = (<i>z</i> − 3)²; the second is 2 times "
-        + "‖<b>w</b>‖².",
-      answer: "∇<i>f</i>(<b>w</b>) = 2(<i>w</i>₀ + <i>w</i>₁ − 3)[1, 1]ᵀ + 4<b>w</b> "
-        + "= [6<i>w</i>₀ + 2<i>w</i>₁ − 6, 2<i>w</i>₀ + 6<i>w</i>₁ − 6]ᵀ, zero at "
-        + "<b>w</b> = [0.75, 0.75]ᵀ." },
-  ];
-
-  const S = { mode: "ex", rule: "linear", ex: 0, w: EX[0].start.slice(),
-    answers: EX.map(() => ["", ""]), reveal: EX.map(() => false) };
+  const S = { rule: "linear", view: "contour", w: RULES.linear.start.slice() };
 
   const view = new FieldView($("gr-plot"), w => { S.w = w; render(); });
 
-  /** Current function: a rule or an exercise. */
-  function cur() { return S.mode === "rules" ? RULES[S.rule] : EX[S.ex]; }
-
   function load(keepW) {
-    const fn = cur();
-    view.setFunction(fn, fn.mid, fn.hw);
-    if (!keepW) S.w = fn.start.slice();
+    const r = RULES[S.rule];
+    view.setFunction(r, r.mid, r.hw);
+    if (!keepW) S.w = r.start.slice();
     render();
-  }
-
-  // ------------------------------------------------------- checking
-
-  /** Compile the student's two partials; null entries where unparsed. */
-  function student() {
-    return S.answers[S.ex].map(src => {
-      if (!src.trim()) return { fn: null, err: null };
-      try {
-        return { fn: compileExpr(src), err: null };
-      } catch (e) {
-        return { fn: null, err: e.message };
-      }
-    });
-  }
-
-  /**
-   * Compare each typed partial with the true one on a 6 x 6 grid over the
-   * view; report the first point where they differ.
-   */
-  function check(parts) {
-    const ex = EX[S.ex], out = [];
-    for (let k = 0; k < 2; k++) {
-      const p = parts[k], name = `∂<i>f</i>/∂<i>w</i>${k ? "₁" : "₀"}`;
-      if (p.err) {
-        out.push(`<span class="bad">${name}: ${esc(p.err)}.</span>`);
-        continue;
-      }
-      if (!p.fn) {
-        out.push(`<span class="muted">${name}: not entered.</span>`);
-        continue;
-      }
-      let bad = null;
-      for (let j = 0; j < 6 && !bad; j++) {
-        for (let i = 0; i < 6 && !bad; i++) {
-          const w = [ex.mid[0] - ex.hw + 2 * ex.hw * (i + 0.5) / 6,
-            ex.mid[1] - ex.hw + 2 * ex.hw * (j + 0.5) / 6];
-          const t = ex.grad(w)[k], s = p.fn(w);
-          if (!(Math.abs(s - t) <= 1e-6 + 1e-3 * Math.max(1, Math.abs(t)))) {
-            bad = { w, s, t };
-          }
-        }
-      }
-      out.push(bad
-        ? `<span class="bad">${name} is off: at <b>w</b> = [${bad.w.map(v => fmt(v)).join(", ")}]ᵀ
-          yours gives ${fmt(bad.s)}, the true value is ${fmt(bad.t)}.</span>`
-        : `<span class="good">${name} matches ✓</span>`);
-    }
-    return out.join("<br>");
   }
 
   // -------------------------------------------------------- drawing
 
   function info() {
-    const el = $("gr-info"), w = S.w;
-    if (S.mode === "rules") {
-      const r = RULES[S.rule];
-      el.innerHTML = `<h3>${r.label}</h3><div class="fdef">${r.fHTML()}</div>`
-        + `<div class="steps">${r.explain(w)}</div>`;
-      return;
-    }
-    const ex = EX[S.ex], parts = student();
-    // Keep focus and caret in the inputs: build them once per exercise.
-    if (el.dataset.ex !== String(S.ex) || el.dataset.mode !== "ex") {
-      el.dataset.ex = S.ex;
-      el.dataset.mode = "ex";
-      el.innerHTML = `<h3>Exercise ${ex.label}</h3>
-        <div class="fdef">${ex.fHTML}</div>
-        <p class="muted">Compute ∇<i>f</i> by hand, then type each partial
-          in <i>w0</i>, <i>w1</i> (e.g. <code>2*(w0 - 2)</code>, <code>exp(w0)</code>,
-          <code>sigma(w1)</code>).</p>
-        <label class="ans"><span>∂<i>f</i>/∂<i>w</i>₀ =</span>
-          <input type="text" id="gr-ans0" spellcheck="false" autocomplete="off"></label>
-        <label class="ans"><span>∂<i>f</i>/∂<i>w</i>₁ =</span>
-          <input type="text" id="gr-ans1" spellcheck="false" autocomplete="off"></label>
-        <p class="check" id="gr-check"></p>
-        <details class="answer"><summary>Hint</summary>${ex.hint}</details>
-        <details class="answer" id="gr-reveal"><summary>Reveal the
-          answer</summary>${ex.answer}</details>`;
-      [0, 1].forEach(k => {
-        const inp = $(`gr-ans${k}`);
-        inp.value = S.answers[S.ex][k];
-        inp.oninput = () => { S.answers[S.ex][k] = inp.value; render(); };
-      });
-    }
-    $("gr-check").innerHTML = check(parts);
+    const r = RULES[S.rule];
+    $("gr-info").innerHTML = `<h3>${r.label}</h3><div class="fdef">${
+      r.fHTML()}</div><div class="steps">${r.explain(S.w)}</div>`;
   }
 
   function readout() {
-    const fn = cur(), w = S.w, g = fn.grad(w), rows = [
+    const r = RULES[S.rule], w = S.w, g = r.grad(w), rows = [
       [`${B("w")} = ${W}`, fmtCol(w)],
-      [`<i>f</i>(${B("w")})`, fmt(fn.f(w))],
+      [`<i>f</i>(${B("w")})`, fmt(r.f(w))],
       [`∇<i>f</i>(${B("w")})`, fmtCol(g)],
       [`‖∇<i>f</i>(${B("w")})‖`, fmt(Math.hypot(...g))],
     ];
-    if (S.mode === "ex") {
-      const parts = student();
-      if (parts.every(p => p.fn)) {
-        rows.push(["yours", fmtCol(parts.map(p => p.fn(w)))]);
-      }
-    }
     $("gr-readout").innerHTML = rows.map(([k, v]) =>
       `<div class="row"><span>${k}</span><span class="val">${v}</span></div>`
     ).join("");
@@ -328,32 +177,29 @@ const GradTab = (function () {
         b.setAttribute("aria-checked", ok(b));
       }
     };
-    pick("[data-gr-mode]", b => b.dataset.grMode === S.mode);
-    pick("[data-gr-rule]", b => S.mode === "rules" && b.dataset.grRule === S.rule);
-    pick("[data-gr-ex]", b => S.mode === "ex" && +b.dataset.grEx === S.ex);
+    pick("[data-gr-rule]", b => b.dataset.grRule === S.rule);
     pick("[data-gr-g]", b => b.dataset.grG === P.g);
-    for (const el of document.querySelectorAll("[data-gr-show]")) {
-      el.hidden = el.dataset.grShow !== S.mode;
-    }
-    const params = S.mode === "rules" ? RULES[S.rule].params : [];
+    pick("[data-gr-view]", b => b.dataset.grView === S.view);
+    const params = RULES[S.rule].params;
     for (const el of document.querySelectorAll("[data-gr-param]")) {
       el.hidden = !params.includes(el.dataset.grParam);
     }
     for (const tr of document.querySelectorAll("tr[data-rule]")) {
-      tr.classList.toggle("on", S.mode === "rules" && tr.dataset.rule === S.rule);
+      tr.classList.toggle("on", tr.dataset.rule === S.rule);
     }
-    $("gr-points").hidden = S.mode !== "ex" || !EX[S.ex].points;
-    $("gr-title").innerHTML = cur().fHTML instanceof Function
-      ? cur().fHTML() : cur().fHTML;
+    $("gr-title").innerHTML = RULES[S.rule].fHTML();
+    $("gr-hint").innerHTML = S.view === "3d"
+      ? "Drag to orbit, scroll to zoom. Drag the point <b>w</b> on the "
+        + "floor; the dropline is <i>f</i>(<b>w</b>). Arrows lie on the "
+        + "floor: &nabla;<i>f</i> lives in <b>w</b>-space."
+      : "Drag the point <b>w</b>, or click anywhere. Black arrow: "
+        + "&nabla;<i>f</i>(<b>w</b>). Gray arrows: &nabla;<i>f</i> across the "
+        + "plot, at one shared (smaller) scale.";
   }
 
   function render() {
-    const fn = cur(), parts = S.mode === "ex" ? student() : [];
-    const extras = fn.extras ? fn.extras(S.w) : [];
-    if (parts.length && parts.every(p => p.fn)) {
-      extras.push({ vec: parts.map(p => p.fn(S.w)), cls: "yours" });
-    }
-    view.render(S.w, extras);
+    const r = RULES[S.rule];
+    view.render(S.w, r.extras ? r.extras(S.w) : [], S.view);
     info();
     readout();
     syncControls();
@@ -371,26 +217,14 @@ const GradTab = (function () {
     ruleBox.appendChild(b);
   }
   function selectRule(key) {
-    S.mode = "rules";
     S.rule = key;
     load(false);
   }
-  const exBox = $("gr-exs");
-  EX.forEach((ex, i) => {
-    const b = document.createElement("button");
-    b.dataset.grEx = i;
-    b.setAttribute("role", "radio");
-    b.textContent = ex.label;
-    b.onclick = () => { S.mode = "ex"; S.ex = i; load(false); };
-    exBox.appendChild(b);
-  });
-  for (const b of document.querySelectorAll("[data-gr-mode]")) {
-    b.onclick = () => {
-      if (b.dataset.grMode !== S.mode) { S.mode = b.dataset.grMode; load(false); }
-    };
-  }
   for (const tr of document.querySelectorAll("tr[data-rule]")) {
     tr.onclick = () => selectRule(tr.dataset.rule);
+  }
+  for (const b of document.querySelectorAll("[data-gr-view]")) {
+    b.onclick = () => { S.view = b.dataset.grView; render(); };
   }
   const gBox = $("gr-g");
   for (const [key, g] of Object.entries(G)) {
@@ -415,13 +249,6 @@ const GradTab = (function () {
     () => P.A[i][j], v => { P.A[i][j] = v; }));
   slider("gr-c", () => P.c, v => { P.c = v; });
   slider("gr-lam", () => P.lam, v => { P.lam = v; });
-  const pts = $("gr-points");
-  EX[0].points.forEach(p => {
-    const b = document.createElement("button");
-    b.innerHTML = `<b>w</b> = [${p.join(", ")}]ᵀ`;
-    b.onclick = () => { S.w = p.slice(); render(); };
-    pts.querySelector(".buttons").appendChild(b);
-  });
 
   load(false);
 

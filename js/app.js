@@ -14,7 +14,7 @@
       t.setAttribute("aria-selected", t.dataset.mode === m);
     }
     for (const el of document.querySelectorAll("[data-show]")) {
-      el.hidden = el.dataset.show !== m;
+      el.hidden = !el.dataset.show.split(" ").includes(m);
     }
     TABS[m].render();
   }

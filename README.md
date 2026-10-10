@@ -5,11 +5,11 @@ Interactive teaching demo of gradients and gradient descent. Three tabs:
 - **Gradient** (`#gradient`). The day 10 gradient rules (sum, linear
   aᵀw, quadratic wᵀAw, chain g(aᵀw), and the special cases ‖w‖² and
   ‖Xw − y‖²), each as a contour map with value labels and the gradient
-  field. Drag the point w: its ∇f(w) arrow is drawn and the rule is
+  field, or (Contour / 3D) an orbitable surface with the arrows on its
+  floor. Drag the point w: its ∇f(w) arrow is drawn and the rule is
   worked with w plugged in. The rule's a, A, g (eᶻ, σ, log(1 + e⁻ᶻ), z²),
-  c and λ are adjustable. Exercises (the first is the in-class activity,
-  with jump buttons to its points) let students type each partial; their
-  arrow is drawn over the true one and the answer is checked on a grid.
+  c and λ are adjustable. The intro shows the gradient's definition, three
+  facts, and the rules table (click a row to open that rule).
 - **Regression.** Fit ŷ = w₀ + w₁x by walking downhill on the MSE surface
   over (w₀, w₁). The surface (contour map, or an orbitable 3D mesh) and the
   scatter are linked both ways: drag the point w on the surface, or
@@ -65,9 +65,8 @@ shows ("local copy" when run locally). The site lives at
 | `js/surface.js` | contour + 3D surface view with the draggable c (both tabs) |
 | `js/chart.js` | loss-by-step chart |
 | `js/data.js` | seeded regression data sets |
-| `js/expr.js` | parser for students' typed partial derivatives |
-| `js/field.js` | contour + gradient-field view of any f(w₀, w₁) |
-| `js/gradtab.js` | Gradient tab: rules and exercises |
+| `js/field.js` | contour / 3D + gradient-field view of any f(w₀, w₁) |
+| `js/gradtab.js` | Gradient tab: the rules |
 | `js/regression.js` | Regression tab |
 | `js/stepsize.js` | Step size tab |
 | `js/app.js` | tabs, hash routing, keyboard, footer build stamp |

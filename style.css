@@ -199,7 +199,6 @@ footer a { color: inherit; }
   font-variant-numeric: tabular-nums;
   font-size: .92rem;
 }
-.check { display: flex; align-items: center; gap: 8px; cursor: pointer; }
 .check input { accent-color: var(--ink); margin: 0; }
 .controls .buttons { margin: 0; }
 .controls .buttons button { flex: 1; }
@@ -241,6 +240,7 @@ footer a { color: inherit; }
   padding: 1px .45em;
   line-height: 1.25;
 }
+.colvec .vdots { align-self: center; line-height: 1; }
 .colvec::before, .colvec::after {
   content: "";
   position: absolute;
@@ -535,27 +535,7 @@ table.rules {
 .mat::after { right: 0; border-left: 0; }
 .k1 { color: #2563eb; }
 .k2 { color: #9333ea; }
-.ans {
-  display: grid;
-  grid-template-columns: 82px minmax(0, 1fr);
-  align-items: center;
-  gap: 8px;
-  margin: 6px 0;
-  font-family: "STIX Two Text", Georgia, serif;
-}
-.ans input {
-  font: 15px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
-  padding: 5px 8px;
-  border: 1px solid #cfd4dd;
-  border-radius: 8px;
-  min-width: 0;
-}
-.ans input:focus { outline: 2px solid #93c5fd; border-color: #2563eb; }
-#gr-info code { font-size: .85em; background: #f1f3f7; padding: 0 4px;
-  border-radius: 4px; }
 .check { margin: 8px 0; font-size: .92rem; line-height: 1.5; }
-.check .good { color: var(--test-ink); font-weight: 600; }
-.check .bad { color: var(--wrong); }
 .agrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -566,7 +546,6 @@ table.rules {
 .agrid input { accent-color: var(--ink); margin: 0; width: 100%;
   min-width: 0; }
 .agrid label > span { white-space: nowrap; }
-#gr-points .buttons { margin: 0; }
 .bands { image-rendering: auto; }
 .flevel { fill: none; stroke: rgba(40, 60, 100, .35); stroke-width: 1; }
 .quiver circle { fill: #4b5563; fill-opacity: .5; }
@@ -574,10 +553,8 @@ table.rules {
 .qarrow polygon { fill: #4b5563; fill-opacity: .5; }
 .fgrad line { stroke: var(--ink); stroke-width: 3; }
 .fgrad polygon { fill: var(--ink); }
-.yours line { stroke: #ea580c; stroke-width: 3; stroke-dasharray: 7 4; }
-.yours polygon { fill: #ea580c; }
 .part1 line { stroke: #2563eb; stroke-width: 2.5; }
 .part1 polygon { fill: #2563eb; }
 .part2 line { stroke: #9333ea; stroke-width: 2.5; }
 .part2 polygon { fill: #9333ea; }
-.fgrad, .yours, .part1, .part2, .quiver { pointer-events: none; }
+.fgrad, .part1, .part2, .quiver { pointer-events: none; }

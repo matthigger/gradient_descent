@@ -22,6 +22,31 @@ const MESH = 26;
 const RAMP_LO = [246, 248, 252];
 const RAMP_HI = [156, 178, 218];
 
+/**
+ * Orthographic orbit camera, shared by the surface and field views: world
+ * (X, Y, Z), floor in [-1, 1]^2, to screen { x, y, depth } (depth grows
+ * away from the camera).
+ */
+function orbitProject(cam, [X, Y, Z]) {
+  const { theta, phi, zoom } = cam, s = 175 * zoom;
+  const xr = X * Math.cos(theta) - Y * Math.sin(theta);
+  const yr = X * Math.sin(theta) + Y * Math.cos(theta);
+  return {
+    x: PLOT.w / 2 + s * xr,
+    y: PLOT.h * 0.6 - s * (Z * Math.cos(phi) + yr * Math.sin(phi)),
+    depth: yr * Math.cos(phi) - Z * Math.sin(phi),
+  };
+}
+
+/** Inverse of orbitProject on the floor plane Z = 0: world [X, Y]. */
+function orbitUnprojectFloor(cam, px, py) {
+  const { theta, phi, zoom } = cam, s = 175 * zoom;
+  const xr = (px - PLOT.w / 2) / s;
+  const yr = (PLOT.h * 0.6 - py) / (s * Math.sin(phi));
+  return [xr * Math.cos(theta) + yr * Math.sin(theta),
+    -xr * Math.sin(theta) + yr * Math.cos(theta)];
+}
+
 function ramp(t) {
   const c = RAMP_LO.map((lo, i) => Math.round(lo + t * (RAMP_HI[i] - lo)));
   return `rgb(${c.join(",")})`;
@@ -305,24 +330,11 @@ class ParamView {
       0.9 * z];
   }
 
-  project([X, Y, Z]) {
-    const { theta, phi, zoom } = this.cam, s = 175 * zoom;
-    const xr = X * Math.cos(theta) - Y * Math.sin(theta);
-    const yr = X * Math.sin(theta) + Y * Math.cos(theta);
-    return {
-      x: PLOT.w / 2 + s * xr,
-      y: PLOT.h * 0.6 - s * (Z * Math.cos(phi) + yr * Math.sin(phi)),
-      depth: yr * Math.cos(phi) - Z * Math.sin(phi),
-    };
-  }
+  project(p) { return orbitProject(this.cam, p); }
 
-  /** Inverse of project() on the floor plane Z = 0. */
+  /** Parameters under a screen point, on the floor plane. */
   unprojectFloor(px, py) {
-    const { theta, phi, zoom } = this.cam, s = 175 * zoom;
-    const xr = (px - PLOT.w / 2) / s;
-    const yr = (PLOT.h * 0.6 - py) / (s * Math.sin(phi));
-    const X = xr * Math.cos(theta) + yr * Math.sin(theta);
-    const Y = -xr * Math.sin(theta) + yr * Math.cos(theta);
+    const [X, Y] = orbitUnprojectFloor(this.cam, px, py);
     return [this.mid[0] + X * this.hw, this.mid[1] + Y * this.hw];
   }
 

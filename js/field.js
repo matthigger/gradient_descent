@@ -7,8 +7,10 @@
 // usable contours. Small arrows on a coarser grid show the field, all at
 // one scale so their lengths compare (long arrow, steep f). A draggable
 // probe w carries the true gradient arrow, plus any extra arrows the
-// caller passes (a student's answer, the parts of a sum), at a larger
-// scale shared among them so they stay legible.
+// caller passes (the parts of a sum), at a larger scale shared among them
+// so they stay legible. 3D mode draws f as a mesh under the orbit camera
+// of surface.js; w moves on the floor, where the arrows lie too, since
+// the gradient lives in w-space.
 
 const FV_GRID = 160;
 const FV_LEVELS = 12;
@@ -25,6 +27,8 @@ class FieldView {
     this.onProbe = onProbe;
     this.canvas = document.createElement("canvas");
     this.canvas.width = this.canvas.height = FV_GRID;
+    this.cam = { theta: -0.7, phi: 0.62, zoom: 1 };
+    this.mode = "contour";
     svg.setAttribute("viewBox", `0 0 ${PLOT.w} ${PLOT.h}`);
     this.listen();
   }
@@ -50,6 +54,8 @@ class FieldView {
     }
     this.z = z;
     const fin = Array.from(z).filter(Number.isFinite).sort((a, b) => a - b);
+    this.zlo = fin[0];
+    this.zhi = fin[fin.length - 1];
     const levels = [];
     for (let k = 0; k < FV_LEVELS; k++) {
       const v = +fin[Math.floor((k + 0.5) / FV_LEVELS * fin.length)]
@@ -163,11 +169,16 @@ class FieldView {
    *   extras (object[]): more arrows from the probe, each { vec, cls, from?
    *     } with vec a gradient-space vector and from an optional
    *     gradient-space offset where it starts (to chain arrows tip to tail)
+   *   mode (string): "contour" or "3d"
    */
-  render(w, extras = []) {
+  render(w, extras = [], mode = this.mode) {
     const svg = this.svg, P = PLOT;
     this.w = w;
+    this.extras = extras;
+    this.mode = mode;
     svg.innerHTML = "";
+    svg.classList.toggle("orbit", mode === "3d");
+    if (mode === "3d") { this.draw3d(w, extras); return; }
     const defs = node("defs", {}, svg);
     const clip = node("clipPath", { id: `${svg.id}-clip` }, defs);
     node("rect", { x: P.x0, y: P.y0, width: P.x1 - P.x0,
@@ -202,15 +213,94 @@ class FieldView {
       if (len > cap) { dx *= cap / len; dy *= cap / len; }
       arrow(g, px + fx, py + fy, px + fx + dx, py + fy + dy, cls, 12);
     };
-    // The student's arrow goes over the true one, so a match shows both.
-    for (const e of extras) if (e.cls !== "yours") draw(e.vec, e.from, e.cls);
+    for (const e of extras) draw(e.vec, e.from, e.cls);
     draw(this.fn.grad(w), null, "fgrad");
-    for (const e of extras) if (e.cls === "yours") draw(e.vec, e.from, e.cls);
     node("circle", { cx: px, cy: py, r: 8, class: "handle" }, g);
     const lx = clamp(px + 14, P.x0 + 4, P.x1 - 110);
     text(g, lx, clamp(py - 14, P.y0 + 16, P.y1 - 6),
       `f = ${fmt(this.fn.f(w))}`, { class: "tip-label" });
     this.axes(svg);
+  }
+
+  // ---------------------------------------------------------------- 3D
+
+  /** World point: floor in [-1, 1]^2, height 0..0.9 over f's range. */
+  world(w) {
+    const t = (this.fn.f(w) - this.zlo) / Math.max(this.zhi - this.zlo, 1e-12);
+    return [(w[0] - this.mid[0]) / this.hw, (w[1] - this.mid[1]) / this.hw,
+      0.9 * clamp(t, 0, 1.5)];
+  }
+
+  /**
+   * Floor arrow from w for gradient vector g at screen scale k (the
+   * contour view's pixels per gradient unit), capped in length.
+   */
+  floorArrow(parent, w, g, k, cls, head, from = null) {
+    const unit = this.ppu * this.hw;
+    const off = v => [v[0] * k / unit, v[1] * k / unit];
+    const [X, Y] = this.world(w);
+    const [fx, fy] = from ? off(from) : [0, 0];
+    let [dx, dy] = off(g);
+    const len = Math.hypot(dx, dy);
+    if (!Number.isFinite(len)) return;
+    if (len > 0.9) { dx *= 0.9 / len; dy *= 0.9 / len; }
+    const a = orbitProject(this.cam, [X + fx, Y + fy, 0]);
+    const b = orbitProject(this.cam, [X + fx + dx, Y + fy + dy, 0]);
+    arrow(parent, a.x, a.y, b.x, b.y, cls, head);
+  }
+
+  draw3d(w, extras) {
+    const svg = this.svg, cam = this.cam, nb = this.levels.length;
+    const F = (X, Y) => orbitProject(cam, [X, Y, 0]);
+    const floor = node("g", { class: "floor" }, svg);
+    const corners = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([X, Y]) =>
+      F(X, Y));
+    node("polygon", { points: corners.map(p => `${p.x},${p.y}`).join(" ") },
+      floor);
+    const l0 = F(0, -1.22), l1 = F(-1.22, 0);
+    text(floor, l0.x, l0.y, "w₀", { class: "axis-label",
+      "text-anchor": "middle" });
+    text(floor, l1.x, l1.y, "w₁", { class: "axis-label",
+      "text-anchor": "middle" });
+    const q = node("g", { class: "quiver" }, svg);
+    for (let j = 0; j < FV_QUIVER; j++) {
+      for (let i = 0; i < FV_QUIVER; i++) {
+        const p = this.at((i + 0.5) / FV_QUIVER, (j + 0.5) / FV_QUIVER);
+        this.floorArrow(q, p, this.fn.grad(p), this.gscale, "qarrow", 5);
+      }
+    }
+
+    const quads = [];
+    for (let i = 0; i < MESH; i++) {
+      for (let j = 0; j < MESH; j++) {
+        const pts = [[i, j], [i + 1, j], [i + 1, j + 1], [i, j + 1]].map(
+          ([a, b]) => orbitProject(cam, this.world(this.at(a / MESH,
+            b / MESH))));
+        const v = this.fn.f(this.at((i + 0.5) / MESH, (j + 0.5) / MESH));
+        quads.push({ pts, depth: pts.reduce((t, p) => t + p.depth, 0),
+          t: Number.isFinite(v) ? this.band(v) / nb : 1 });
+      }
+    }
+    quads.sort((a, b) => b.depth - a.depth);
+    const mesh = node("g", { class: "mesh" }, svg);
+    for (const qd of quads) {
+      node("polygon", { fill: ramp(qd.t),
+        points: qd.pts.map(p => `${p.x},${p.y}`).join(" ") }, mesh);
+    }
+
+    const [X, Y] = this.world(w), tip = F(X, Y);
+    const top = orbitProject(cam, this.world(w));
+    node("line", { x1: top.x, y1: top.y, x2: tip.x, y2: tip.y,
+      class: "dropline" }, svg);
+    node("circle", { cx: top.x, cy: top.y, r: 6, class: "surf-pt" }, svg);
+    // The floor is drawn smaller than the contour plot and foreshortened,
+    // so the probe's arrows get twice their contour scale.
+    const k = 2 * this.pscale;
+    for (const e of extras) this.floorArrow(svg, w, e.vec, k, e.cls, 11, e.from);
+    this.floorArrow(svg, w, this.fn.grad(w), k, "fgrad", 12);
+    node("circle", { cx: tip.x, cy: tip.y, r: 8, class: "handle" }, svg);
+    text(svg, top.x + 12, top.y - 12, `f = ${fmt(this.fn.f(w))}`,
+      { class: "tip-label" });
   }
 
   /** One value label per level, greedily kept apart from the others. */
@@ -285,24 +375,54 @@ class FieldView {
       this.mid[i] - this.hw, this.mid[i] + this.hw)));
   }
 
+  /**
+   * Contour: press anywhere in the plot to move the probe. 3D: press the
+   * handle to move it on the floor, anywhere else to orbit; scroll zooms.
+   */
   listen() {
     const svg = this.svg;
-    let drag = false;
-    const move = e => {
-      const p = svgPoint(svg, e);
-      this.probeTo(this.inv(p.x, p.y));
+    let drag = null;
+    const move = p => {
+      if (drag.orbit) {
+        this.cam.theta += (p.x - drag.x) * 0.01;
+        this.cam.phi = clamp(this.cam.phi + (p.y - drag.y) * 0.01, 0.15, 1.45);
+        drag.x = p.x;
+        drag.y = p.y;
+        this.render(this.w, this.extras);
+        return;
+      }
+      if (this.mode === "3d") {
+        const [X, Y] = orbitUnprojectFloor(this.cam, p.x, p.y);
+        this.probeTo([this.mid[0] + X * this.hw, this.mid[1] + Y * this.hw]);
+      } else {
+        this.probeTo(this.inv(p.x, p.y));
+      }
     };
     svg.addEventListener("pointerdown", e => {
+      if (e.button !== 0 || !this.fn) return;
       const p = svgPoint(svg, e), P = PLOT;
-      if (e.button !== 0 || p.x < P.x0 || p.x > P.x1 || p.y < P.y0
-        || p.y > P.y1) return;
-      drag = true;
+      if (this.mode === "3d") {
+        drag = e.target.classList.contains("handle")
+          ? { probe: true } : { orbit: true, x: p.x, y: p.y };
+      } else {
+        if (p.x < P.x0 || p.x > P.x1 || p.y < P.y0 || p.y > P.y1) return;
+        drag = { probe: true };
+      }
       svg.setPointerCapture(e.pointerId);
       e.preventDefault();
-      move(e);
+      move(p);
     });
-    svg.addEventListener("pointermove", e => { if (drag) move(e); });
-    svg.addEventListener("pointerup", () => { drag = false; });
-    svg.addEventListener("pointercancel", () => { drag = false; });
+    svg.addEventListener("pointermove", e => {
+      if (drag) move(svgPoint(svg, e));
+    });
+    svg.addEventListener("pointerup", () => { drag = null; });
+    svg.addEventListener("pointercancel", () => { drag = null; });
+    svg.addEventListener("wheel", e => {
+      if (this.mode !== "3d") return;
+      e.preventDefault();
+      this.cam.zoom = clamp(this.cam.zoom * Math.exp(-e.deltaY * 0.001),
+        0.4, 3);
+      this.render(this.w, this.extras);
+    }, { passive: false });
   }
 }

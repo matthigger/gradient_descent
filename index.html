@@ -26,52 +26,21 @@
     <div data-show="grad">
       <h2>The gradient: a derivative in each direction</h2>
       <p class="goal"><b>Setup:</b> <i>f</i> takes a vector
-        <b>w</b> = <span class="colvec"><span><i>w</i><sub>0</sub></span><span><i>w</i><sub>1</sub></span></span>
+        <b>w</b> = <span class="colvec"><span><i>w</i><sub>0</sub></span><span><i>w</i><sub>1</sub></span><span class="vdots">&#8942;</span></span>
         and returns a number. The partial derivative
         &part;<i>f</i>/&part;<i>w<sub>k</sub></i> is how <i>f</i> changes when
         only <i>w<sub>k</sub></i> moves: use the 1-D rules, holding the other
         input constant.</p>
       <div class="formula">
         &nabla;<i>f</i>(<b>w</b>) =
-        <span class="colvec"><span>&part;<i>f</i> / &part;<i>w</i><sub>0</sub></span><span>&part;<i>f</i> / &part;<i>w</i><sub>1</sub></span></span>
+        <span class="colvec"><span>&part;<i>f</i> / &part;<i>w</i><sub>0</sub></span><span>&part;<i>f</i> / &part;<i>w</i><sub>1</sub></span><span class="vdots">&#8942;</span></span>
       </div>
       <ol class="facts">
         <li>&#8214;&nabla;<i>f</i>&#8214; measures how quickly <i>f</i>
           changes (long arrow: steep).</li>
         <li>&nabla;<i>f</i> points in the direction of greatest increase.</li>
         <li>&nabla;<i>f</i> = <b>0</b> at critical points.</li>
-        <li>&nabla;(<i>f</i> + <i>g</i>) = &nabla;<i>f</i> + &nabla;<i>g</i>
-          (every loss is a sum over samples).</li>
       </ol>
-      <table class="rules">
-        <thead><tr><th></th><th><i>f</i>(<b>w</b>)</th>
-          <th>&nabla;<i>f</i>(<b>w</b>)</th></tr></thead>
-        <tbody>
-          <tr data-rule="sum"><td>sum</td><td><i>c f</i>(<b>w</b>) +
-            <i>h</i>(<b>w</b>)</td><td><i>c</i>&nabla;<i>f</i>(<b>w</b>) +
-            &nabla;<i>h</i>(<b>w</b>)</td></tr>
-          <tr data-rule="linear"><td><b>1. linear</b></td>
-            <td><b>a</b>&#7488;<b>w</b></td><td><b>a</b></td></tr>
-          <tr data-rule="quadratic"><td><b>2. quadratic</b></td>
-            <td><b>w</b>&#7488;<i>A</i><b>w</b></td><td>(<i>A</i> +
-            <i>A</i>&#7488;)<b>w</b> &nbsp;= 2<i>A</i><b>w</b> if
-            <i>A</i>&#7488; = <i>A</i></td></tr>
-          <tr data-rule="chain"><td><b>3. chain</b></td>
-            <td><i>g</i>(<b>a</b>&#7488;<b>w</b>)</td>
-            <td><i>g</i>&prime;(<b>a</b>&#7488;<b>w</b>) <b>a</b></td></tr>
-          <tr data-rule="norm" class="special"><td>special cases</td>
-            <td>&#8214;<b>w</b>&#8214;&sup2; = <b>w</b>&#7488;<i>I</i><b>w</b></td>
-            <td>2<b>w</b> &nbsp;<span class="muted">(rule 2, <i>A</i> =
-            <i>I</i>)</span></td></tr>
-          <tr data-rule="lsq"><td></td>
-            <td>&#8214;<i>X</i><b>w</b> &minus; <b>y</b>&#8214;&sup2;</td>
-            <td>2<i>X</i>&#7488;(<i>X</i><b>w</b> &minus; <b>y</b>)
-            &nbsp;<span class="muted">(rules 1 and 2)</span></td></tr>
-        </tbody>
-      </table>
-      <p class="muted"><b>a</b>: constant vector, <i>A</i>: constant square
-        matrix, <i>g</i>: scalar input, scalar output. Click a row to explore
-        that rule.</p>
     </div>
     <div data-show="reg">
       <h2>Fitting a line by walking downhill</h2>
@@ -127,48 +96,39 @@
     </div>
 
     <div>
-      <h3>Try this</h3>
-      <ul class="try" data-show="grad">
-        <li><em>Exercise 1</em> is the in-class activity. Compute
-          &nabla;<i>f</i> by hand at <b>w</b> = [0, 0]&#7488;, [2, 0]&#7488;
-          and [3, 1]&#7488;, then use <em>Jump to</em> (or drag the point)
-          to check. Where is the arrow longest? Where does it vanish? Why?
-          <details class="answer"><summary>Answer</summary>Longest far from
-            [2, 1]&#7488;, where <i>f</i> is steepest; it vanishes at
-            [2, 1]&#7488;, the minimum, where &nabla;<i>f</i> =
-            <b>0</b>.</details>
-        </li>
-        <li>How does each arrow meet the contour line through its point?
-          <details class="answer"><summary>Answer</summary>At a right angle.
-            Along a contour <i>f</i> does not change, so the direction of
-            greatest increase has no part along it.</details>
-        </li>
-        <li>On the <em>linear</em> rule, why are all the arrows the
-          same?
-          <details class="answer"><summary>Answer</summary>&nabla;<b>a</b>&#7488;<b>w</b>
-            = <b>a</b> does not depend on <b>w</b>.</details>
-        </li>
-        <li>On the <em>quadratic</em> rule, set <i>A</i><sub>01</sub> = 1,
-          <i>A</i><sub>10</sub> = 0, then <i>A</i><sub>01</sub> = 0.5,
-          <i>A</i><sub>10</sub> = 0.5. Does the picture change? Why?
-          <details class="answer"><summary>Answer</summary>No: <b>w</b>&#7488;<i>A</i><b>w</b>
-            only sees <i>A</i><sub>01</sub> + <i>A</i><sub>10</sub>, which is
-            why the gradient uses <i>A</i> + <i>A</i>&#7488;.</details>
-        </li>
-        <li>Still on <em>quadratic</em>, make both diagonal entries negative,
-          then just one. How do the contour labels show a maximum, and a
-          saddle?</li>
-        <li>On the <em>chain</em> rule, why are the contours straight lines,
-          and every arrow parallel to <b>a</b>?
-          <details class="answer"><summary>Answer</summary><i>f</i> depends
-            on <b>w</b> only through <b>a</b>&#7488;<b>w</b>, so it is
-            constant along lines where <b>a</b>&#7488;<b>w</b> is; the factor
-            <i>g</i>&prime; only stretches the arrow <b>a</b>.</details>
-        </li>
-        <li>On the <em>sum</em> rule, watch the blue and purple arrows add
-          tip to tail. Raise <i>&lambda;</i>: where does the minimum
-          go?</li>
-      </ul>
+      <div data-show="grad">
+        <h3>Gradient rules</h3>
+        <table class="rules">
+          <thead><tr><th></th><th><i>f</i>(<b>w</b>)</th>
+            <th>&nabla;<i>f</i>(<b>w</b>)</th></tr></thead>
+          <tbody>
+            <tr data-rule="sum"><td>sum</td><td><i>c f</i>(<b>w</b>) +
+              <i>h</i>(<b>w</b>)</td><td><i>c</i>&nabla;<i>f</i>(<b>w</b>) +
+              &nabla;<i>h</i>(<b>w</b>)</td></tr>
+            <tr data-rule="linear"><td><b>1. linear</b></td>
+              <td><b>a</b>&#7488;<b>w</b></td><td><b>a</b></td></tr>
+            <tr data-rule="quadratic"><td><b>2. quadratic</b></td>
+              <td><b>w</b>&#7488;<i>A</i><b>w</b></td><td>(<i>A</i> +
+              <i>A</i>&#7488;)<b>w</b> &nbsp;= 2<i>A</i><b>w</b> if
+              <i>A</i>&#7488; = <i>A</i></td></tr>
+            <tr data-rule="chain"><td><b>3. chain</b></td>
+              <td><i>g</i>(<b>a</b>&#7488;<b>w</b>)</td>
+              <td><i>g</i>&prime;(<b>a</b>&#7488;<b>w</b>) <b>a</b></td></tr>
+            <tr data-rule="norm" class="special"><td>special cases</td>
+              <td>&#8214;<b>w</b>&#8214;&sup2; = <b>w</b>&#7488;<i>I</i><b>w</b></td>
+              <td>2<b>w</b> &nbsp;<span class="muted">(rule 2, <i>A</i> =
+              <i>I</i>)</span></td></tr>
+            <tr data-rule="lsq"><td></td>
+              <td>&#8214;<i>X</i><b>w</b> &minus; <b>y</b>&#8214;&sup2;</td>
+              <td>2<i>X</i>&#7488;(<i>X</i><b>w</b> &minus; <b>y</b>)
+              &nbsp;<span class="muted">(rules 1 and 2)</span></td></tr>
+          </tbody>
+        </table>
+        <p class="muted"><b>a</b>: constant vector, <i>A</i>: constant square
+          matrix, <i>g</i>: scalar input, scalar output. Click a row to explore
+          that rule.</p>
+      </div>
+      <h3 data-show="reg step">Try this</h3>
       <ul class="try" data-show="reg">
         <li>Click far from the bottom and press <em>Gradient step</em> a
           few times. Which way does the orange step arrow point, compared
@@ -255,11 +215,15 @@
 
   <main class="panel" data-show="grad">
     <div class="card plot">
-      <div class="plot-head"><span class="ftitle" id="gr-title"></span></div>
-      <svg id="gr-plot" aria-label="contours of f with its gradient"></svg>
-      <p class="hint">Drag the point <b>w</b>, or click anywhere. Black
-        arrow: &nabla;<i>f</i>(<b>w</b>). Gray arrows: &nabla;<i>f</i> across
-        the plot, at one shared (smaller) scale.</p>
+      <div class="plot-head">
+        <span class="ftitle" id="gr-title"></span>
+        <div class="seg small" role="radiogroup">
+          <button data-gr-view="contour" role="radio">Contour</button>
+          <button data-gr-view="3d" role="radio">3D</button>
+        </div>
+      </div>
+      <svg id="gr-plot" aria-label="f with its gradient"></svg>
+      <p class="hint" id="gr-hint"></p>
     </div>
 
     <div class="col">
@@ -269,17 +233,8 @@
 
     <aside class="side">
       <div class="card controls">
-        <div class="field"><span>Show</span>
-          <div class="seg" role="radiogroup">
-            <button data-gr-mode="rules" role="radio">Rules</button>
-            <button data-gr-mode="ex" role="radio">Exercises</button>
-          </div></div>
-        <div class="field" data-gr-show="rules"><span>Rule</span>
+        <div class="field"><span>Rule</span>
           <div class="seg wrap" id="gr-rules" role="radiogroup"></div></div>
-        <div class="field" data-gr-show="ex"><span>Exercise</span>
-          <div class="seg wrap" id="gr-exs" role="radiogroup"></div></div>
-        <div class="field" id="gr-points"><span>Jump to</span>
-          <div class="buttons"></div></div>
         <div class="field" data-gr-param="g"><span><i>g</i>(<i>z</i>)</span>
           <div class="seg wrap" id="gr-g" role="radiogroup"></div></div>
         <label class="slider" data-gr-param="a"><span><b>a</b><sub>0</sub></span>
@@ -476,7 +431,6 @@
   <script src="js/data.js"></script>
   <script src="js/regression.js"></script>
   <script src="js/stepsize.js"></script>
-  <script src="js/expr.js"></script>
   <script src="js/field.js"></script>
   <script src="js/gradtab.js"></script>
   <script src="js/app.js"></script>
