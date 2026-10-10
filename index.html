@@ -102,9 +102,6 @@
           <thead><tr><th></th><th><i>f</i>(<b>w</b>)</th>
             <th>&nabla;<i>f</i>(<b>w</b>)</th></tr></thead>
           <tbody>
-            <tr data-rule="sum"><td>sum</td><td><i>c f</i>(<b>w</b>) +
-              <i>h</i>(<b>w</b>)</td><td><i>c</i>&nabla;<i>f</i>(<b>w</b>) +
-              &nabla;<i>h</i>(<b>w</b>)</td></tr>
             <tr data-rule="linear"><td><b>1. linear</b></td>
               <td><b>a</b>&#7488;<b>w</b></td><td><b>a</b></td></tr>
             <tr data-rule="quadratic"><td><b>2. quadratic</b></td>
@@ -114,19 +111,12 @@
             <tr data-rule="chain"><td><b>3. chain</b></td>
               <td><i>g</i>(<b>a</b>&#7488;<b>w</b>)</td>
               <td><i>g</i>&prime;(<b>a</b>&#7488;<b>w</b>) <b>a</b></td></tr>
-            <tr data-rule="norm" class="special"><td>special cases</td>
-              <td>&#8214;<b>w</b>&#8214;&sup2; = <b>w</b>&#7488;<i>I</i><b>w</b></td>
-              <td>2<b>w</b> &nbsp;<span class="muted">(rule 2, <i>A</i> =
-              <i>I</i>)</span></td></tr>
-            <tr data-rule="lsq"><td></td>
-              <td>&#8214;<i>X</i><b>w</b> &minus; <b>y</b>&#8214;&sup2;</td>
-              <td>2<i>X</i>&#7488;(<i>X</i><b>w</b> &minus; <b>y</b>)
-              &nbsp;<span class="muted">(rules 1 and 2)</span></td></tr>
           </tbody>
         </table>
         <p class="muted"><b>a</b>: constant vector, <i>A</i>: constant square
           matrix, <i>g</i>: scalar input, scalar output. Click a row to explore
-          that rule.</p>
+          that rule; the chain rule there uses <i>g</i>(<i>z</i>) =
+          <i>z</i>&sup2;.</p>
       </div>
       <h3 data-show="reg step">Try this</h3>
       <ul class="try" data-show="reg">
@@ -235,31 +225,12 @@
       <div class="card controls">
         <div class="field"><span>Rule</span>
           <div class="seg wrap" id="gr-rules" role="radiogroup"></div></div>
-        <div class="field" data-gr-param="g"><span><i>g</i>(<i>z</i>)</span>
-          <div class="seg wrap" id="gr-g" role="radiogroup"></div></div>
-        <label class="slider" data-gr-param="a"><span><b>a</b><sub>0</sub></span>
-          <input type="range" id="gr-a0" min="-3" max="3" step="0.1">
-          <span class="val" id="gr-a0-v"></span></label>
-        <label class="slider" data-gr-param="a"><span><b>a</b><sub>1</sub></span>
-          <input type="range" id="gr-a1" min="-3" max="3" step="0.1">
-          <span class="val" id="gr-a1-v"></span></label>
-        <div class="field" data-gr-param="A"><span><i>A</i></span>
-          <div class="agrid">
-            <label><span><i>A</i><sub>00</sub> = <b id="gr-A00-v"></b></span>
-              <input type="range" id="gr-A00" min="-3" max="3" step="0.1"></label>
-            <label><span><i>A</i><sub>01</sub> = <b id="gr-A01-v"></b></span>
-              <input type="range" id="gr-A01" min="-3" max="3" step="0.1"></label>
-            <label><span><i>A</i><sub>10</sub> = <b id="gr-A10-v"></b></span>
-              <input type="range" id="gr-A10" min="-3" max="3" step="0.1"></label>
-            <label><span><i>A</i><sub>11</sub> = <b id="gr-A11-v"></b></span>
-              <input type="range" id="gr-A11" min="-3" max="3" step="0.1"></label>
-          </div></div>
-        <label class="slider" data-gr-param="c"><span><i>c</i></span>
-          <input type="range" id="gr-c" min="0" max="2" step="0.1">
-          <span class="val" id="gr-c-v"></span></label>
-        <label class="slider" data-gr-param="lam"><span><i>&lambda;</i></span>
-          <input type="range" id="gr-lam" min="0" max="10" step="0.1">
-          <span class="val" id="gr-lam-v"></span></label>
+        <div class="field" data-gr-param="a"><span><b>a</b> =</span>
+          <div class="entry" id="gr-a"></div></div>
+        <div class="field" data-gr-param="A"><span><i>A</i> =</span>
+          <div class="entry" id="gr-A"></div></div>
+        <p class="muted">Type an entry, or step it by 0.5 with the arrow
+          keys.</p>
       </div>
     </aside>
   </main>

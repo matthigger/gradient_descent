@@ -6,9 +6,8 @@
 // at levels spaced by the quantiles of f over the view so any shape gets
 // usable contours. Small arrows on a coarser grid show the field, all at
 // one scale so their lengths compare (long arrow, steep f). A draggable
-// probe w carries the true gradient arrow, plus any extra arrows the
-// caller passes (the parts of a sum), at a larger scale shared among them
-// so they stay legible. 3D mode draws f as a mesh under the orbit camera
+// probe w carries the true gradient arrow, at a larger scale so it stays
+// legible. 3D mode draws f as a mesh under the orbit camera
 // of surface.js; w moves on the floor, where the arrows lie too, since
 // the gradient lives in w-space.
 
@@ -166,19 +165,15 @@ class FieldView {
    *
    * Args:
    *   w (number[]): (2,) probe position
-   *   extras (object[]): more arrows from the probe, each { vec, cls, from?
-   *     } with vec a gradient-space vector and from an optional
-   *     gradient-space offset where it starts (to chain arrows tip to tail)
    *   mode (string): "contour" or "3d"
    */
-  render(w, extras = [], mode = this.mode) {
+  render(w, mode = this.mode) {
     const svg = this.svg, P = PLOT;
     this.w = w;
-    this.extras = extras;
     this.mode = mode;
     svg.innerHTML = "";
     svg.classList.toggle("orbit", mode === "3d");
-    if (mode === "3d") { this.draw3d(w, extras); return; }
+    if (mode === "3d") { this.draw3d(w); return; }
     const defs = node("defs", {}, svg);
     const clip = node("clipPath", { id: `${svg.id}-clip` }, defs);
     node("rect", { x: P.x0, y: P.y0, width: P.x1 - P.x0,
@@ -206,15 +201,10 @@ class FieldView {
 
     const px = this.sx(w[0]), py = this.sy(w[1]);
     const cap = (P.x1 - P.x0) * 0.45;
-    const draw = (vec, from, cls) => {
-      const [fx, fy] = from ? this.offset(from, this.pscale) : [0, 0];
-      let [dx, dy] = this.offset(vec, this.pscale);
-      const len = Math.hypot(dx, dy);
-      if (len > cap) { dx *= cap / len; dy *= cap / len; }
-      arrow(g, px + fx, py + fy, px + fx + dx, py + fy + dy, cls, 12);
-    };
-    for (const e of extras) draw(e.vec, e.from, e.cls);
-    draw(this.fn.grad(w), null, "fgrad");
+    let [dx, dy] = this.offset(this.fn.grad(w), this.pscale);
+    const len = Math.hypot(dx, dy);
+    if (len > cap) { dx *= cap / len; dy *= cap / len; }
+    arrow(g, px, py, px + dx, py + dy, "fgrad", 12);
     node("circle", { cx: px, cy: py, r: 8, class: "handle" }, g);
     const lx = clamp(px + 14, P.x0 + 4, P.x1 - 110);
     text(g, lx, clamp(py - 14, P.y0 + 16, P.y1 - 6),
@@ -235,21 +225,19 @@ class FieldView {
    * Floor arrow from w for gradient vector g at screen scale k (the
    * contour view's pixels per gradient unit), capped in length.
    */
-  floorArrow(parent, w, g, k, cls, head, from = null) {
+  floorArrow(parent, w, g, k, cls, head) {
     const unit = this.ppu * this.hw;
-    const off = v => [v[0] * k / unit, v[1] * k / unit];
     const [X, Y] = this.world(w);
-    const [fx, fy] = from ? off(from) : [0, 0];
-    let [dx, dy] = off(g);
+    let [dx, dy] = [g[0] * k / unit, g[1] * k / unit];
     const len = Math.hypot(dx, dy);
     if (!Number.isFinite(len)) return;
     if (len > 0.9) { dx *= 0.9 / len; dy *= 0.9 / len; }
-    const a = orbitProject(this.cam, [X + fx, Y + fy, 0]);
-    const b = orbitProject(this.cam, [X + fx + dx, Y + fy + dy, 0]);
+    const a = orbitProject(this.cam, [X, Y, 0]);
+    const b = orbitProject(this.cam, [X + dx, Y + dy, 0]);
     arrow(parent, a.x, a.y, b.x, b.y, cls, head);
   }
 
-  draw3d(w, extras) {
+  draw3d(w) {
     const svg = this.svg, cam = this.cam, nb = this.levels.length;
     const F = (X, Y) => orbitProject(cam, [X, Y, 0]);
     const floor = node("g", { class: "floor" }, svg);
@@ -294,10 +282,8 @@ class FieldView {
       class: "dropline" }, svg);
     node("circle", { cx: top.x, cy: top.y, r: 6, class: "surf-pt" }, svg);
     // The floor is drawn smaller than the contour plot and foreshortened,
-    // so the probe's arrows get twice their contour scale.
-    const k = 2 * this.pscale;
-    for (const e of extras) this.floorArrow(svg, w, e.vec, k, e.cls, 11, e.from);
-    this.floorArrow(svg, w, this.fn.grad(w), k, "fgrad", 12);
+    // so the probe's arrow gets twice its contour scale.
+    this.floorArrow(svg, w, this.fn.grad(w), 2 * this.pscale, "fgrad", 12);
     node("circle", { cx: tip.x, cy: tip.y, r: 8, class: "handle" }, svg);
     text(svg, top.x + 12, top.y - 12, `f = ${fmt(this.fn.f(w))}`,
       { class: "tip-label" });
@@ -388,7 +374,7 @@ class FieldView {
         this.cam.phi = clamp(this.cam.phi + (p.y - drag.y) * 0.01, 0.15, 1.45);
         drag.x = p.x;
         drag.y = p.y;
-        this.render(this.w, this.extras);
+        this.render(this.w);
         return;
       }
       if (this.mode === "3d") {
@@ -422,7 +408,7 @@ class FieldView {
       e.preventDefault();
       this.cam.zoom = clamp(this.cam.zoom * Math.exp(-e.deltaY * 0.001),
         0.4, 3);
-      this.render(this.w, this.extras);
+      this.render(this.w);
     }, { passive: false });
   }
 }

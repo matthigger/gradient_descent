@@ -1,43 +1,19 @@
-// Gradient tab: the gradient rules of day 10, each drawn as a contour map
-// (or a 3D surface) with its gradient field.
+// Gradient tab: the three gradient rules of day 10 (linear a'w, quadratic
+// w'Aw, chain g(a'w) with g(z) = z^2), each drawn as a contour map (or a
+// 3D surface) with its gradient field.
 //
-// Rules follow the lecture's reference table: sum, linear (a'w), quadratic
-// (w'Aw), chain (g(a'w)), and the special cases ||w||^2 and ||Xw - y||^2.
 // Each rule's card plugs the probe's w into the rule's formula, so the
-// arithmetic behind the arrow is on screen.
+// arithmetic behind the arrow is on screen. The vector a and matrix A are
+// typed into bracketed grids of number fields.
 
 const GradTab = (function () {
   const $ = id => document.getElementById(id);
   const dot = (a, w) => a[0] * w[0] + a[1] * w[1];
-  const sig = z => 1 / (1 + Math.exp(-z));
   const B = s => `<b>${s}</b>`;
   const W = colVec(["<i>w</i>₀", "<i>w</i>₁"]);
 
-  // Small regression data for ||Xw - y||^2: rows [1, x_i], so w0 is the
-  // intercept and w1 the slope, as on the regression tab.
-  const XS = [0, 1, 2, 3], YS = [1, 1.5, 3, 3.5];
-  const X = XS.map(x => [1, x]);
-  function resid(w) { return X.map((r, i) => dot(r, w) - YS[i]); }
-  function lsq(w) { return resid(w).reduce((t, r) => t + r * r, 0); }
-  function lsqGrad(w) {
-    const r = resid(w);
-    return [0, 1].map(k => 2 * X.reduce((t, row, i) => t + row[k] * r[i], 0));
-  }
-
-  const G = {
-    exp: { label: "eᶻ", g: Math.exp, dg: Math.exp, dgHTML: "<i>e<sup>z</sup></i>" },
-    sigma: { label: "σ(z)", g: sig, dg: z => sig(z) * (1 - sig(z)),
-      dgHTML: "σ(<i>z</i>)(1 − σ(<i>z</i>))" },
-    logistic: { label: "log(1 + e⁻ᶻ)", g: z => Math.log1p(Math.exp(-z)),
-      dg: z => sig(z) - 1,
-      dgHTML: "−<i>e</i><sup>−<i>z</i></sup> / (1 + <i>e</i><sup>−<i>z</i></sup>)" },
-    square: { label: "z²", g: z => z * z, dg: z => 2 * z,
-      dgHTML: "2<i>z</i>" },
-  };
-
-  // Rule parameters, shared across rules where they mean the same thing.
-  const P = { a: [1, 0.5], A: [[1, 0.5], [0.5, 2]], g: "sigma", c: 1,
-    lam: 2 };
+  // Rule parameters: a is shared by the linear and chain rules.
+  const P = { a: [1, 0.5], A: [[1, 0.5], [0.5, 2]] };
   const sym = () => P.A[0][1] === P.A[1][0];
   const AAt = () => [[2 * P.A[0][0], P.A[0][1] + P.A[1][0]],
     [P.A[0][1] + P.A[1][0], 2 * P.A[1][1]]];
@@ -47,8 +23,8 @@ const GradTab = (function () {
 
   /**
    * Rules. Each has f, grad, a domain (mid, hw) and start, the parameter
-   * controls it shows, its formula, and explain(w): the rule with w
-   * plugged in. extras(w) adds arrows (the parts of a sum).
+   * editors it shows, its formula, and explain(w): the rule with w plugged
+   * in.
    */
   const RULES = {
     linear: {
@@ -73,69 +49,21 @@ const GradTab = (function () {
             + "leaves <i>f</i> unchanged."),
     },
     chain: {
-      label: "Chain g(aᵀw)", params: ["g", "a"], mid: [0, 0], hw: 3,
+      label: "Chain g(aᵀw)", params: ["a"], mid: [0, 0], hw: 3,
       start: [1, -1],
-      fHTML: () => `<i>f</i>(${B("w")}) = <i>g</i>(${B("a")}ᵀ${B("w")}),
-        <i>g</i>(<i>z</i>) = ${G[P.g].label.replace(/z/g, "<i>z</i>")}`,
-      f: w => G[P.g].g(dot(P.a, w)),
-      grad: w => P.a.map(v => G[P.g].dg(dot(P.a, w)) * v),
+      fHTML: () => `<i>f</i>(${B("w")}) = <i>g</i>(${B("a")}ᵀ${B("w")}) = `
+        + `(${B("a")}ᵀ${B("w")})², &nbsp;<i>g</i>(<i>z</i>) = <i>z</i>²`,
+      f: w => dot(P.a, w) ** 2,
+      grad: w => P.a.map(v => 2 * dot(P.a, w) * v),
       explain: w => {
-        const z = dot(P.a, w), d = G[P.g].dg(z);
+        const z = dot(P.a, w), d = 2 * z;
         return eq(`<i>z</i> = ${B("a")}ᵀ${B("w")}`, fmt(z))
-          + eq(`<i>g</i>′(<i>z</i>)`, G[P.g].dgHTML, fmt(d))
+          + eq(`<i>g</i>′(<i>z</i>)`, "2<i>z</i>", fmt(d))
           + eq(`∇<i>f</i>(${B("w")})`, `<i>g</i>′(${B("a")}ᵀ${B("w")}) ${B("a")}`,
             `${fmt(d)} ${fmtCol(P.a)}`, fmtCol(P.a.map(v => d * v)))
           + note("<i>f</i> depends on <b>w</b> only through <b>a</b>ᵀ<b>w</b>: "
             + "contours are lines across <b>a</b>, and every arrow is "
             + "parallel to <b>a</b>.");
-      },
-    },
-    norm: {
-      label: "‖w‖²", params: [], mid: [0, 0], hw: 3, start: [1.5, 1],
-      fHTML: () => `<i>f</i>(${B("w")}) = ‖${B("w")}‖² = ${B("w")}ᵀ<i>I</i>${B("w")}`,
-      f: w => dot(w, w), grad: w => w.map(v => 2 * v),
-      explain: w => eq(`∇<i>f</i>(${B("w")})`, `2${B("w")}`,
-        `2 ${fmtCol(w)}`, fmtCol(w.map(v => 2 * v)))
-        + note("Rule 2 with <i>A</i> = <i>I</i>."),
-    },
-    lsq: {
-      label: "‖Xw − y‖²", params: [], mid: [0.9, 0.9], hw: 2.5,
-      start: [2, -0.5],
-      fHTML: () => `<i>f</i>(${B("w")}) = ‖<i>X</i>${B("w")} − ${B("y")}‖²`,
-      f: lsq, grad: lsqGrad,
-      explain: w => `<div class="step"><i>X</i> = ${
-        matHTML(X.map(r => r.map(v => fmt(v))))}, ${B("y")} = ${
-        colVec(YS.map(v => fmt(v)))}</div>`
-        + eq(`<i>X</i>${B("w")} − ${B("y")}`, colVec(resid(w).map(v => fmt(v))))
-        + eq(`∇<i>f</i>(${B("w")})`, `2<i>X</i>ᵀ(<i>X</i>${B("w")} − ${B("y")})`,
-          fmtCol(lsqGrad(w)))
-        + note("Rules 1 and 2 on ‖<i>X</i><b>w</b> − <b>y</b>‖² = "
-          + "<b>w</b>ᵀ<i>X</i>ᵀ<i>X</i><b>w</b> − 2<b>y</b>ᵀ<i>X</i><b>w</b> + "
-          + "<b>y</b>ᵀ<b>y</b>. Rows of <i>X</i> are [1, <i>x</i>ᵢ], so "
-          + "<i>w</i>₀ is the intercept and <i>w</i>₁ the slope."),
-    },
-    sum: {
-      label: "Sum c·f + h", params: ["c", "lam"], mid: [0.6, 0.6], hw: 2.5,
-      start: [-1, 2],
-      fHTML: () => `<i>c</i>‖<i>X</i>${B("w")} − ${B("y")}‖² + `
-        + `<i>λ</i>‖${B("w")}‖²`,
-      f: w => P.c * lsq(w) + P.lam * dot(w, w),
-      grad: w => lsqGrad(w).map((v, k) => P.c * v + 2 * P.lam * w[k]),
-      extras: w => {
-        const a = lsqGrad(w).map(v => P.c * v), b = w.map(v => 2 * P.lam * v);
-        return [{ vec: a, cls: "part1" }, { vec: b, from: a, cls: "part2" }];
-      },
-      explain: w => {
-        const a = lsqGrad(w).map(v => P.c * v), b = w.map(v => 2 * P.lam * v);
-        return eq(`∇<i>f</i>(${B("w")})`,
-          `<i>c</i> · 2<i>X</i>ᵀ(<i>X</i>${B("w")} − ${B("y")}) + <i>λ</i> · 2${B("w")}`)
-          + `<div class="step">= <span class="k1">${fmtCol(a)}</span> + `
-            + `<span class="k2">${fmtCol(b)}</span> = `
-            + `${fmtCol(a.map((v, k) => v + b[k]))}</div>`
-          + note("Sum rule: the gradients of the parts add, tip to tail "
-            + "(<span class=\"k1\">blue</span> + <span class=\"k2\">purple</span> "
-            + "= black). This is ridge regression; raising <i>λ</i> pulls the "
-            + "minimum toward <b>w</b> = 0.");
       },
     },
   };
@@ -172,14 +100,12 @@ const GradTab = (function () {
   }
 
   function syncControls() {
-    const pick = (sel, ok) => {
-      for (const b of document.querySelectorAll(sel)) {
-        b.setAttribute("aria-checked", ok(b));
-      }
-    };
-    pick("[data-gr-rule]", b => b.dataset.grRule === S.rule);
-    pick("[data-gr-g]", b => b.dataset.grG === P.g);
-    pick("[data-gr-view]", b => b.dataset.grView === S.view);
+    for (const b of document.querySelectorAll("[data-gr-rule]")) {
+      b.setAttribute("aria-checked", b.dataset.grRule === S.rule);
+    }
+    for (const b of document.querySelectorAll("[data-gr-view]")) {
+      b.setAttribute("aria-checked", b.dataset.grView === S.view);
+    }
     const params = RULES[S.rule].params;
     for (const el of document.querySelectorAll("[data-gr-param]")) {
       el.hidden = !params.includes(el.dataset.grParam);
@@ -198,8 +124,7 @@ const GradTab = (function () {
   }
 
   function render() {
-    const r = RULES[S.rule];
-    view.render(S.w, r.extras ? r.extras(S.w) : [], S.view);
+    view.render(S.w, S.view);
     info();
     readout();
     syncControls();
@@ -226,29 +151,35 @@ const GradTab = (function () {
   for (const b of document.querySelectorAll("[data-gr-view]")) {
     b.onclick = () => { S.view = b.dataset.grView; render(); };
   }
-  const gBox = $("gr-g");
-  for (const [key, g] of Object.entries(G)) {
-    const b = document.createElement("button");
-    b.dataset.grG = key;
-    b.setAttribute("role", "radio");
-    b.textContent = g.label;
-    b.onclick = () => { P.g = key; load(true); };
-    gBox.appendChild(b);
+
+  /**
+   * Fill a bracketed grid (cols columns) with number fields bound to the
+   * given entries: type a value, or step it by 0.5 with the arrow keys or
+   * spinner.
+   *
+   * Args:
+   *   el (HTMLElement): the grid
+   *   cols (number): columns
+   *   entries (Array): [get, set] per field, row-major
+   */
+  function entryGrid(el, cols, entries) {
+    el.style.gridTemplateColumns = `repeat(${cols}, auto)`;
+    for (const [get, set] of entries) {
+      const inp = document.createElement("input");
+      inp.type = "number";
+      inp.step = "0.5";
+      inp.value = get();
+      inp.oninput = () => {
+        const v = parseFloat(inp.value);
+        if (Number.isFinite(v)) { set(v); load(true); }
+      };
+      el.appendChild(inp);
+    }
   }
-  // Parameter sliders: a (2), A (2 x 2), c, lambda. Values sit in labels.
-  function slider(id, get, set, digits = 1) {
-    const inp = $(id), out = $(`${id}-v`);
-    const show = () => { out.textContent = get().toFixed(digits); };
-    inp.value = get();
-    show();
-    inp.oninput = () => { set(+inp.value); show(); load(true); };
-  }
-  slider("gr-a0", () => P.a[0], v => { P.a[0] = v; });
-  slider("gr-a1", () => P.a[1], v => { P.a[1] = v; });
-  [[0, 0], [0, 1], [1, 0], [1, 1]].forEach(([i, j]) => slider(`gr-A${i}${j}`,
-    () => P.A[i][j], v => { P.A[i][j] = v; }));
-  slider("gr-c", () => P.c, v => { P.c = v; });
-  slider("gr-lam", () => P.lam, v => { P.lam = v; });
+  entryGrid($("gr-a"), 1, [0, 1].map(i =>
+    [() => P.a[i], v => { P.a[i] = v; }]));
+  entryGrid($("gr-A"), 2, [[0, 0], [0, 1], [1, 0], [1, 1]].map(([i, j]) =>
+    [() => P.A[i][j], v => { P.A[i][j] = v; }]));
 
   load(false);
 

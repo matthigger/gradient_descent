@@ -2,13 +2,12 @@
 
 Interactive teaching demo of gradients and gradient descent. Three tabs:
 
-- **Gradient** (`#gradient`). The day 10 gradient rules (sum, linear
-  aᵀw, quadratic wᵀAw, chain g(aᵀw), and the special cases ‖w‖² and
-  ‖Xw − y‖²), each as a contour map with value labels and the gradient
-  field, or (Contour / 3D) an orbitable surface with the arrows on its
-  floor. Drag the point w: its ∇f(w) arrow is drawn and the rule is
-  worked with w plugged in. The rule's a, A, g (eᶻ, σ, log(1 + e⁻ᶻ), z²),
-  c and λ are adjustable. The intro shows the gradient's definition, three
+- **Gradient** (`#gradient`). The three day 10 gradient rules (linear
+  aᵀw, quadratic wᵀAw, chain g(aᵀw) with g(z) = z²), each as a contour
+  map with value labels and the gradient field, or (Contour / 3D) an
+  orbitable surface with the arrows on its floor. Drag the point w: its
+  ∇f(w) arrow is drawn and the rule is worked with w plugged in. a and A
+  are typed into bracketed grids of number fields. The intro shows the gradient's definition, three
   facts, and the rules table (click a row to open that rule).
 - **Regression.** Fit ŷ = w₀ + w₁x by walking downhill on the MSE surface
   over (w₀, w₁). The surface (contour map, or an orbitable 3D mesh) and the

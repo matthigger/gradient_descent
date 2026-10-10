@@ -20,12 +20,12 @@ and ∇f as column vectors ending in ⋮) and three facts (‖∇f‖ is how fas
 changes, ∇f points to greatest increase, ∇f = 0 at critical points); the
 right column holds the reference rules table, whose rows open that rule.
 
-- **Rules:** sum (c‖Xw − y‖² + λ‖w‖², ridge), linear aᵀw, quadratic wᵀAw,
-  chain g(aᵀw) with g ∈ {eᶻ, σ, log(1 + e⁻ᶻ), z²}, ‖w‖², ‖Xw − y‖² on a
-  4-point X = [1, x]. Each: contour map of f (sampled; quantile levels,
-  value labels), gray gradient field at one scale, a draggable probe w
-  (snaps to 0.1) with its ∇f(w) arrow, and a card working the rule with w
-  plugged in. The sum rule draws its parts tip to tail.
+- **Rules:** linear aᵀw, quadratic wᵀAw, chain g(aᵀw) with g(z) = z².
+  Each: contour map of f (sampled; quantile levels, value labels), gray
+  gradient field at one scale, a draggable probe w (snaps to 0.1) with
+  its ∇f(w) arrow, and a card working the rule with w plugged in. a and A
+  are edited as bracketed grids of number fields (type, or arrow keys in
+  steps of 0.5). The rules table shows the same three rows.
 - **Contour / 3D:** the 3D view is an orbitable mesh of f (shared camera
   with the regression tab); w moves on the floor, a dropline shows f(w),
   and the field and probe arrows lie on the floor, in w-space.
