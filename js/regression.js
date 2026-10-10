@@ -22,7 +22,7 @@ const RegTab = (function () {
   const etaInput = $("reg-eta");
   const eta = etaSlider(etaInput, ETA_LO, ETA_HI);
   const view = new ParamView($("reg-surf"), {
-    labels: ["c₀ (intercept)", "c₁ (slope)"], fname: "MSE",
+    labels: ["w₀ (intercept)", "w₁ (slope)"], fname: "MSE",
     onSet: (c, done) => setC(c, done),
     onHover: () => render(),
   });
@@ -217,7 +217,7 @@ const RegTab = (function () {
       xs = `(<i>x</i> ${sign(-m)} ${fmt(Math.abs(m))})`;
       if (S.scale === "std") xs += ` / ${fmt(s)}`;
     }
-    const model = `<i>c</i>₀ + <i>c</i>₁${S.scale === "raw" ? "" : " "}${xs}`;
+    const model = `<i>w</i>₀ + <i>w</i>₁${S.scale === "raw" ? "" : " "}${xs}`;
     $("reg-eq").innerHTML = (h === null ? "" : `step ${h}: `)
       + `<i>ŷ</i> = ${model} = ${fmt(c[0])} `
       + `${sign(c[1])} ${fmt(Math.abs(c[1]))} ${xs}`;
@@ -227,12 +227,12 @@ const RegTab = (function () {
     const h = hovered(), c = h === null ? runner.c : runner.trail[h];
     const g = q.grad(c);
     const rows = [
-      [`<b>c</b> = ${colVec(["<i>c</i>₀", "<i>c</i>₁"])}`, fmtCol(c)],
-      ["MSE(<b>c</b>)", fmt(q.f(c))],
-      ["∇MSE(<b>c</b>)", fmtCol(g)],
-      ["‖∇MSE(<b>c</b>)‖", fmt(Math.hypot(...g))],
+      [`<b>w</b> = ${colVec(["<i>w</i>₀", "<i>w</i>₁"])}`, fmtCol(c)],
+      ["MSE(<b>w</b>)", fmt(q.f(c))],
+      ["∇MSE(<b>w</b>)", fmtCol(g)],
+      ["‖∇MSE(<b>w</b>)‖", fmt(Math.hypot(...g))],
     ];
-    rows.push(["min MSE", fmt(q.fmin)], ["at <b>c</b>*", fmtCol(q.cstar)]);
+    rows.push(["min MSE", fmt(q.fmin)], ["at <b>w</b>*", fmtCol(q.cstar)]);
     rows.push(["condition number <i>κ</i>", fmt(q.kappa)]);
     $("reg-readout").innerHTML = rows.map(([k, v]) =>
       `<div class="row"><span>${k}</span><span class="val">${v}</span></div>`
@@ -265,10 +265,10 @@ const RegTab = (function () {
     $("reg-run").disabled = !stopRun && !!runner.status;
     $("reg-step").disabled = !!runner.status;
     $("reg-surf-hint").textContent = S.view === "3d"
-      ? "Drag to orbit, scroll to zoom. Drag the point c on the floor to "
+      ? "Drag to orbit, scroll to zoom. Drag the point w on the floor to "
         + "move it (hold Shift to change only one parameter); the "
         + "dropline is its MSE."
-      : "Drag the point c, or click anywhere, to choose c. Hold Shift to "
+      : "Drag the point w, or click anywhere, to choose w. Hold Shift to "
         + "change only one parameter. After a step, hover the trail to see "
         + "that step's line.";
   }

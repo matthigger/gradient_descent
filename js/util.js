@@ -51,6 +51,13 @@ function colVec(entries) {
 
 function fmtCol(c) { return colVec(c.map(v => fmt(v))); }
 
+/** Matrix (HTML) of already-formatted entries, rows of equal length. */
+function matHTML(rows) {
+  return `<span class="mat" style="grid-template-columns: repeat(${
+    rows[0].length}, auto)">${
+    rows.flat().map(e => `<span>${e}</span>`).join("")}</span>`;
+}
+
 /** Seeded uniform [0, 1) generator (mulberry32). */
 function rng(seed) {
   let a = seed >>> 0;

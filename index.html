@@ -16,58 +16,109 @@
     <p class="sub">To find the bottom of a valley in the fog, feel which way
       is uphill and step the other way.</p>
     <nav class="tabs" role="tablist">
-      <button class="tab" role="tab" data-mode="reg">Regression</button>
+      <button class="tab" role="tab" data-mode="grad">Gradient</button>
       <button class="tab" role="tab" data-mode="step">Step size</button>
+      <button class="tab" role="tab" data-mode="reg">Regression</button>
     </nav>
   </header>
 
   <section class="intro card">
+    <div data-show="grad">
+      <h2>The gradient: a derivative in each direction</h2>
+      <p class="goal"><b>Setup:</b> <i>f</i> takes a vector
+        <b>w</b> = <span class="colvec"><span><i>w</i><sub>0</sub></span><span><i>w</i><sub>1</sub></span></span>
+        and returns a number. The partial derivative
+        &part;<i>f</i>/&part;<i>w<sub>k</sub></i> is how <i>f</i> changes when
+        only <i>w<sub>k</sub></i> moves: use the 1-D rules, holding the other
+        input constant.</p>
+      <div class="formula">
+        &nabla;<i>f</i>(<b>w</b>) =
+        <span class="colvec"><span>&part;<i>f</i> / &part;<i>w</i><sub>0</sub></span><span>&part;<i>f</i> / &part;<i>w</i><sub>1</sub></span></span>
+      </div>
+      <ol class="facts">
+        <li>&#8214;&nabla;<i>f</i>&#8214; measures how quickly <i>f</i>
+          changes (long arrow: steep).</li>
+        <li>&nabla;<i>f</i> points in the direction of greatest increase.</li>
+        <li>&nabla;<i>f</i> = <b>0</b> at critical points.</li>
+        <li>&nabla;(<i>f</i> + <i>g</i>) = &nabla;<i>f</i> + &nabla;<i>g</i>
+          (every loss is a sum over samples).</li>
+      </ol>
+      <table class="rules">
+        <thead><tr><th></th><th><i>f</i>(<b>w</b>)</th>
+          <th>&nabla;<i>f</i>(<b>w</b>)</th></tr></thead>
+        <tbody>
+          <tr data-rule="sum"><td>sum</td><td><i>c f</i>(<b>w</b>) +
+            <i>h</i>(<b>w</b>)</td><td><i>c</i>&nabla;<i>f</i>(<b>w</b>) +
+            &nabla;<i>h</i>(<b>w</b>)</td></tr>
+          <tr data-rule="linear"><td><b>1. linear</b></td>
+            <td><b>a</b>&#7488;<b>w</b></td><td><b>a</b></td></tr>
+          <tr data-rule="quadratic"><td><b>2. quadratic</b></td>
+            <td><b>w</b>&#7488;<i>A</i><b>w</b></td><td>(<i>A</i> +
+            <i>A</i>&#7488;)<b>w</b> &nbsp;= 2<i>A</i><b>w</b> if
+            <i>A</i>&#7488; = <i>A</i></td></tr>
+          <tr data-rule="chain"><td><b>3. chain</b></td>
+            <td><i>g</i>(<b>a</b>&#7488;<b>w</b>)</td>
+            <td><i>g</i>&prime;(<b>a</b>&#7488;<b>w</b>) <b>a</b></td></tr>
+          <tr data-rule="norm" class="special"><td>special cases</td>
+            <td>&#8214;<b>w</b>&#8214;&sup2; = <b>w</b>&#7488;<i>I</i><b>w</b></td>
+            <td>2<b>w</b> &nbsp;<span class="muted">(rule 2, <i>A</i> =
+            <i>I</i>)</span></td></tr>
+          <tr data-rule="lsq"><td></td>
+            <td>&#8214;<i>X</i><b>w</b> &minus; <b>y</b>&#8214;&sup2;</td>
+            <td>2<i>X</i>&#7488;(<i>X</i><b>w</b> &minus; <b>y</b>)
+            &nbsp;<span class="muted">(rules 1 and 2)</span></td></tr>
+        </tbody>
+      </table>
+      <p class="muted"><b>a</b>: constant vector, <i>A</i>: constant square
+        matrix, <i>g</i>: scalar input, scalar output. Click a row to explore
+        that rule.</p>
+    </div>
     <div data-show="reg">
       <h2>Fitting a line by walking downhill</h2>
-      <p class="goal"><b>Goal:</b> choose the intercept <i>c</i><sub>0</sub>
-        and slope <i>c</i><sub>1</sub> of the line
-        <i>&ycirc;</i> = <i>c</i><sub>0</sub> + <i>c</i><sub>1</sub><i>x</i>
+      <p class="goal"><b>Goal:</b> choose the intercept <i>w</i><sub>0</sub>
+        and slope <i>w</i><sub>1</sub> of the line
+        <i>&ycirc;</i> = <i>w</i><sub>0</sub> + <i>w</i><sub>1</sub><i>x</i>
         with the smallest mean squared error (MSE).</p>
       <p class="goal approach"><b>Approach:</b> start anywhere. The gradient
         &nabla;MSE points the way MSE rises fastest, so take a small step
         against it, and repeat.</p>
       <div class="formula">
-        MSE(<b>c</b>) =
+        MSE(<b>w</b>) =
         <span class="frac"><span>1</span><span><i>n</i></span></span>
         &sum;<sub><i>i</i></sub> (<i>y<sub>i</sub></i> &minus;
-        <i>c</i><sub>0</sub> &minus; <i>c</i><sub>1</sub><i>x<sub>i</sub></i>)&sup2;
+        <i>w</i><sub>0</sub> &minus; <i>w</i><sub>1</sub><i>x<sub>i</sub></i>)&sup2;
       </div>
       <div class="formula">
-        <span class="frac"><span>&part;MSE</span><span>&part;<i>c</i><sub>0</sub></span></span>
+        <span class="frac"><span>&part;MSE</span><span>&part;<i>w</i><sub>0</sub></span></span>
         = &minus;<span class="frac"><span>2</span><span><i>n</i></span></span>
         &sum;<sub><i>i</i></sub> <i>r<sub>i</sub></i>
         <span class="sep"></span>
-        <span class="frac"><span>&part;MSE</span><span>&part;<i>c</i><sub>1</sub></span></span>
+        <span class="frac"><span>&part;MSE</span><span>&part;<i>w</i><sub>1</sub></span></span>
         = &minus;<span class="frac"><span>2</span><span><i>n</i></span></span>
         &sum;<sub><i>i</i></sub> <i>r<sub>i</sub></i><i>x<sub>i</sub></i>
         <span class="sep"></span>
-        <b>c</b> &larr; <b>c</b> &minus; <i>&eta;</i> &nabla;MSE(<b>c</b>)
+        <b>w</b> &larr; <b>w</b> &minus; <i>&eta;</i> &nabla;MSE(<b>w</b>)
       </div>
       <p class="muted">The error <i>r<sub>i</sub></i> = <i>y<sub>i</sub></i>
         &minus; <i>&ycirc;<sub>i</sub></i> is the red segment from sample
-        <i>i</i> to the line. Every <b>c</b> =
-        <span class="colvec"><span><i>c</i><sub>0</sub></span><span><i>c</i><sub>1</sub></span></span>
+        <i>i</i> to the line. Every <b>w</b> =
+        <span class="colvec"><span><i>w</i><sub>0</sub></span><span><i>w</i><sub>1</sub></span></span>
         is one line (right) and one point on the error surface (left);
         <i>&eta;</i> is the step size.</p>
     </div>
     <div data-show="step">
       <h2>How big a step?</h2>
-      <p class="goal"><b>Goal:</b> find the <b>c</b> that minimizes
-        <i>f</i>(<b>c</b>).</p>
+      <p class="goal"><b>Goal:</b> find the <b>w</b> that minimizes
+        <i>f</i>(<b>w</b>).</p>
       <p class="goal approach"><b>Approach:</b> the gradient points uphill,
         so a step against it goes down. The step size <i>&eta;</i> sets how
         far: too small and it crawls, too large and it overshoots the
         bottom, or even climbs out.</p>
       <div class="formula">
-        <b>c</b> &larr; <b>c</b> &minus; <i>&eta;</i> &nabla;<i>f</i>(<b>c</b>)
+        <b>w</b> &larr; <b>w</b> &minus; <i>&eta;</i> &nabla;<i>f</i>(<b>w</b>)
         <span class="sep"></span>
-        parabola: <i>f</i>(<i>c</i>) = <i>a</i>(<i>c</i> &minus;
-        <i>c</i>*)&sup2;
+        parabola: <i>f</i>(<i>w</i>) = <i>a</i>(<i>w</i> &minus;
+        <i>w</i>*)&sup2;
       </div>
       <p class="muted">The 2D bowl is steepest along one axis (curvature 1)
         and shallowest along the other (curvature 1/<i>&kappa;</i>). The
@@ -77,18 +128,59 @@
 
     <div>
       <h3>Try this</h3>
+      <ul class="try" data-show="grad">
+        <li><em>Exercise 1</em> is the in-class activity. Compute
+          &nabla;<i>f</i> by hand at <b>w</b> = [0, 0]&#7488;, [2, 0]&#7488;
+          and [3, 1]&#7488;, then use <em>Jump to</em> (or drag the point)
+          to check. Where is the arrow longest? Where does it vanish? Why?
+          <details class="answer"><summary>Answer</summary>Longest far from
+            [2, 1]&#7488;, where <i>f</i> is steepest; it vanishes at
+            [2, 1]&#7488;, the minimum, where &nabla;<i>f</i> =
+            <b>0</b>.</details>
+        </li>
+        <li>How does each arrow meet the contour line through its point?
+          <details class="answer"><summary>Answer</summary>At a right angle.
+            Along a contour <i>f</i> does not change, so the direction of
+            greatest increase has no part along it.</details>
+        </li>
+        <li>On the <em>linear</em> rule, why are all the arrows the
+          same?
+          <details class="answer"><summary>Answer</summary>&nabla;<b>a</b>&#7488;<b>w</b>
+            = <b>a</b> does not depend on <b>w</b>.</details>
+        </li>
+        <li>On the <em>quadratic</em> rule, set <i>A</i><sub>01</sub> = 1,
+          <i>A</i><sub>10</sub> = 0, then <i>A</i><sub>01</sub> = 0.5,
+          <i>A</i><sub>10</sub> = 0.5. Does the picture change? Why?
+          <details class="answer"><summary>Answer</summary>No: <b>w</b>&#7488;<i>A</i><b>w</b>
+            only sees <i>A</i><sub>01</sub> + <i>A</i><sub>10</sub>, which is
+            why the gradient uses <i>A</i> + <i>A</i>&#7488;.</details>
+        </li>
+        <li>Still on <em>quadratic</em>, make both diagonal entries negative,
+          then just one. How do the contour labels show a maximum, and a
+          saddle?</li>
+        <li>On the <em>chain</em> rule, why are the contours straight lines,
+          and every arrow parallel to <b>a</b>?
+          <details class="answer"><summary>Answer</summary><i>f</i> depends
+            on <b>w</b> only through <b>a</b>&#7488;<b>w</b>, so it is
+            constant along lines where <b>a</b>&#7488;<b>w</b> is; the factor
+            <i>g</i>&prime; only stretches the arrow <b>a</b>.</details>
+        </li>
+        <li>On the <em>sum</em> rule, watch the blue and purple arrows add
+          tip to tail. Raise <i>&lambda;</i>: where does the minimum
+          go?</li>
+      </ul>
       <ul class="try" data-show="reg">
         <li>Click far from the bottom and press <em>Gradient step</em> a
           few times. Which way does the orange step arrow point, compared
           with the contour lines?
           <details class="answer"><summary>Answer</summary>Perpendicular to
-            the contour line through <b>c</b>: straight downhill from where
+            the contour line through <b>w</b>: straight downhill from where
             you stand. That is usually not straight at the minimum.</details>
         </li>
-        <li>Drag the point <b>c</b> along the bold contour line. MSE stays the
+        <li>Drag the point <b>w</b> along the bold contour line. MSE stays the
           same, but the line on the right changes. Find two very different
           lines with the same MSE.</li>
-        <li>Hold Shift and drag <b>c</b> left and right: only the
+        <li>Hold Shift and drag <b>w</b> left and right: only the
           intercept changes, and the line slides up and down. Now up and
           down: only the slope changes, and the line pivots about
           <i>x</i> = 0. With the <em>Offset</em> at 5, why does a small
@@ -98,7 +190,7 @@
             it away from every sample at once. That is the steep direction
             of the long thin valley.</details>
         </li>
-        <li>Drag <b>c</b> in a small circle around the bottom. Which way
+        <li>Drag <b>w</b> in a small circle around the bottom. Which way
           does MSE rise fastest? Check against the dashed gradient arrow.
           <details class="answer"><summary>Answer</summary>Along the
             gradient (dashed arrow), at right angles to the contour
@@ -123,19 +215,19 @@
           many steps does <em>Run</em> take? Switch <em>x</em> to
           <em>Standardized</em> and try again.</li>
         <li>Drag the line's square handles until it matches the dashed best
-          line. Watch your <b>c</b> walk to the bottom of the
+          line. Watch your <b>w</b> walk to the bottom of the
           surface.</li>
       </ul>
       <ul class="try" data-show="step">
-        <li>On the parabola, is <i>f</i>&prime;(<i>c</i>) positive or
+        <li>On the parabola, is <i>f</i>&prime;(<i>w</i>) positive or
           negative to the right of the bottom? Which way does the step
           go?</li>
         <li>Find the <i>&eta;</i> that lands at the bottom in one step.
           What is it, in terms of <i>a</i>?
           <details class="answer"><summary>Answer</summary><i>&eta;</i> =
             1/(2<i>a</i>): the step &minus;<i>&eta;</i> &middot;
-            2<i>a</i>(<i>c</i> &minus; <i>c</i>*) is then exactly
-            &minus;(<i>c</i> &minus; <i>c</i>*).</details>
+            2<i>a</i>(<i>w</i> &minus; <i>w</i>*) is then exactly
+            &minus;(<i>w</i> &minus; <i>w</i>*).</details>
         </li>
         <li>Pick an <i>&eta;</i> that zig-zags, then one that blows up.
           Now raise the curvature <i>a</i>: the same <i>&eta;</i> is no
@@ -160,6 +252,62 @@
       </ul>
     </div>
   </section>
+
+  <main class="panel" data-show="grad">
+    <div class="card plot">
+      <div class="plot-head"><span class="ftitle" id="gr-title"></span></div>
+      <svg id="gr-plot" aria-label="contours of f with its gradient"></svg>
+      <p class="hint">Drag the point <b>w</b>, or click anywhere. Black
+        arrow: &nabla;<i>f</i>(<b>w</b>). Gray arrows: &nabla;<i>f</i> across
+        the plot, at one shared (smaller) scale.</p>
+    </div>
+
+    <div class="col">
+      <div class="card" id="gr-info"></div>
+      <div class="card readout" id="gr-readout"></div>
+    </div>
+
+    <aside class="side">
+      <div class="card controls">
+        <div class="field"><span>Show</span>
+          <div class="seg" role="radiogroup">
+            <button data-gr-mode="rules" role="radio">Rules</button>
+            <button data-gr-mode="ex" role="radio">Exercises</button>
+          </div></div>
+        <div class="field" data-gr-show="rules"><span>Rule</span>
+          <div class="seg wrap" id="gr-rules" role="radiogroup"></div></div>
+        <div class="field" data-gr-show="ex"><span>Exercise</span>
+          <div class="seg wrap" id="gr-exs" role="radiogroup"></div></div>
+        <div class="field" id="gr-points"><span>Jump to</span>
+          <div class="buttons"></div></div>
+        <div class="field" data-gr-param="g"><span><i>g</i>(<i>z</i>)</span>
+          <div class="seg wrap" id="gr-g" role="radiogroup"></div></div>
+        <label class="slider" data-gr-param="a"><span><b>a</b><sub>0</sub></span>
+          <input type="range" id="gr-a0" min="-3" max="3" step="0.1">
+          <span class="val" id="gr-a0-v"></span></label>
+        <label class="slider" data-gr-param="a"><span><b>a</b><sub>1</sub></span>
+          <input type="range" id="gr-a1" min="-3" max="3" step="0.1">
+          <span class="val" id="gr-a1-v"></span></label>
+        <div class="field" data-gr-param="A"><span><i>A</i></span>
+          <div class="agrid">
+            <label><span><i>A</i><sub>00</sub> = <b id="gr-A00-v"></b></span>
+              <input type="range" id="gr-A00" min="-3" max="3" step="0.1"></label>
+            <label><span><i>A</i><sub>01</sub> = <b id="gr-A01-v"></b></span>
+              <input type="range" id="gr-A01" min="-3" max="3" step="0.1"></label>
+            <label><span><i>A</i><sub>10</sub> = <b id="gr-A10-v"></b></span>
+              <input type="range" id="gr-A10" min="-3" max="3" step="0.1"></label>
+            <label><span><i>A</i><sub>11</sub> = <b id="gr-A11-v"></b></span>
+              <input type="range" id="gr-A11" min="-3" max="3" step="0.1"></label>
+          </div></div>
+        <label class="slider" data-gr-param="c"><span><i>c</i></span>
+          <input type="range" id="gr-c" min="0" max="2" step="0.1">
+          <span class="val" id="gr-c-v"></span></label>
+        <label class="slider" data-gr-param="lam"><span><i>&lambda;</i></span>
+          <input type="range" id="gr-lam" min="0" max="10" step="0.1">
+          <span class="val" id="gr-lam-v"></span></label>
+      </div>
+    </aside>
+  </main>
 
   <main class="panel reg" data-show="reg">
     <div class="card plot">
@@ -328,6 +476,9 @@
   <script src="js/data.js"></script>
   <script src="js/regression.js"></script>
   <script src="js/stepsize.js"></script>
+  <script src="js/expr.js"></script>
+  <script src="js/field.js"></script>
+  <script src="js/gradtab.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

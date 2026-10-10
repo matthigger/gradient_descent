@@ -12,25 +12,43 @@ is uphill and step the other way."
 
 ---
 
+## Tab 0: Gradient (`#gradient`)
+
+Opens the page (tabs run in lesson order: Gradient, Step size,
+Regression). The intro holds the day 10 gradient facts and the reference
+rules table; clicking a row opens that rule.
+
+- **Rules:** sum (c‖Xw − y‖² + λ‖w‖², ridge), linear aᵀw, quadratic wᵀAw,
+  chain g(aᵀw) with g ∈ {eᶻ, σ, log(1 + e⁻ᶻ), z²}, ‖w‖², ‖Xw − y‖² on a
+  4-point X = [1, x]. Each: contour map of f (sampled; quantile levels,
+  value labels), gray gradient field at one scale, a draggable probe w
+  (snaps to 0.1) with its ∇f(w) arrow, and a card working the rule with w
+  plugged in. The sum rule draws its parts tip to tail.
+- **Exercises:** six functions (1 is the day 10 in-class activity with
+  jump buttons to its points). Students type ∂f/∂w₀ and ∂f/∂w₁ (w0, w1,
+  implicit multiplication, exp, log, sigma, ^); the answer is checked on a
+  6 × 6 grid and the first mismatch reported, and their arrow is drawn
+  over the true one. Hint and Reveal per exercise.
+
 ## Tab 1: Regression
 
 ### Model and math (intro card)
 
-- Model: ŷ = c₀ + c₁x.
-- Objective: MSE(c₀, c₁) = (1/n) Σ (yᵢ − c₀ − c₁xᵢ)².
+- Model: ŷ = w₀ + w₁x.
+- Objective: MSE(w₀, w₁) = (1/n) Σ (yᵢ − w₀ − w₁xᵢ)².
 - Gradient, with residual rᵢ = yᵢ − ŷᵢ:
-  ∂MSE/∂c₀ = −(2/n) Σ rᵢ,  ∂MSE/∂c₁ = −(2/n) Σ rᵢxᵢ.
+  ∂MSE/∂w₀ = −(2/n) Σ rᵢ,  ∂MSE/∂w₁ = −(2/n) Σ rᵢxᵢ.
 - Update: c ← c − η ∇MSE(c).
-- Readout shows these live: c₀, c₁, MSE, ∇ = (g₀, g₁), step count,
+- Readout shows these live: w₀, w₁, MSE, ∇ = (g₀, g₁), step count,
   min MSE.
 
 ### Layout
 
-- **Left: error surface** over (c₀, c₁).
+- **Left: error surface** over (w₀, w₁).
   - Contour view (default): log-spaced filled levels plus level lines, so
     the valley floor stays visible in ill-conditioned cases. Marks: trail of
     previous iterates (dots joined by segments).
-  - **The point c**: current parameters c = (c₀, c₁) as a draggable
+  - **The point w**: current parameters w = (w₀, w₁) as a draggable
     point. Dragging it is the main way to explore: the scatter line,
     residuals, readout (c, MSE, ∇) and arrows all update live, and an MSE
     label rides next to it. The level line through c is drawn bold, showing
@@ -42,7 +60,7 @@ is uphill and step the other way."
     pointer has moved further along), with a dashed guide along it.
   - 3D toggle: orbitable surface (scroll to zoom, as in
     `projection_2d_3d`): drag empty space to orbit, drag the c handle to
-    move it. The handle slides along the (c₀, c₁) floor plane, the point rides the
+    move it. The handle slides along the (w₀, w₁) floor plane, the point rides the
     surface above it, and a dropline from point to floor shows its height
     (= MSE). Trail drawn on the surface.
   - Arrows at the current point: the step −η∇ at true length, and ∇
@@ -50,10 +68,10 @@ is uphill and step the other way."
     off-plot).
   - Iterates that leave the plot clip to the edge with an arrowhead
     (as `cross_validation` does for error bars).
-- **Right: scatter** of (xᵢ, yᵢ) with the current line ŷ = c₀ + c₁x,
+- **Right: scatter** of (xᵢ, yᵢ) with the current line ŷ = w₀ + w₁x,
   vertical residual segments (errors), and the min-MSE (least-squares)
   line, dashed; a legend in the top-left corner names all three. The
-  header shows the model, ŷ = c₀ + c₁x = <fitted numbers>.
+  header shows the model, ŷ = w₀ + w₁x = <fitted numbers>.
   - Drag a data point to move it: the surface, its minimum, and the min
     line update live.
   - Drag either of two square handles on the line (at the 25th/75th
@@ -75,8 +93,8 @@ problem and its fix. Start: κ 1.3, offset 0.
 
 
 **x-scaling control** (segmented): Raw | Centered | Standardized. The model
-becomes ŷ = c₀ + c₁(x − x̄) or ŷ = c₀ + c₁(x − x̄)/s; surface axis labels
-change accordingly ("c₀ = ŷ at x̄"). The scatter always shows raw x, so the
+becomes ŷ = w₀ + w₁(x − x̄) or ŷ = w₀ + w₁(x − x̄)/s; surface axis labels
+change accordingly ("w₀ = ŷ at x̄"). The scatter always shows raw x, so the
 same best line is visibly reached faster. This one control fixes both
 sliders' problems: centering undoes the offset, standardizing the spread.
 
@@ -140,8 +158,8 @@ Regression
   relative to the contour lines? (Answer: perpendicular, straight downhill
   locally, not at the minimum.)
 - Set η in each zone of the bar and Run: what does the walk do in each?
-- x Raw, offset 5: Run. Why the long thin valley? (Answer: raising c₁
-  while lowering c₀ pivots the line around the data's center, which
+- x Raw, offset 5: Run. Why the long thin valley? (Answer: raising w₁
+  while lowering w₀ pivots the line around the data's center, which
   barely changes MSE; that pair of moves is the valley floor.) Switch to
   Centered: the offset no longer matters.
 - Offset 0, raise κ: the largest safe η shrinks and Run takes more steps.

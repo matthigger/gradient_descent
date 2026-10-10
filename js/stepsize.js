@@ -34,7 +34,7 @@ const StepTab = (function () {
   const etaInput = $("st-eta");
   const eta = etaSlider(etaInput, ETA_LO, ETA_HI);
   const view = new ParamView($("st-2d"), {
-    labels: ["c₀", "c₁"], fname: "f",
+    labels: ["w₀", "w₁"], fname: "f",
     onSet: c => { stop(); run2.reset(c); render(); },
     onHover: () => render(),
   });
@@ -185,12 +185,12 @@ const StepTab = (function () {
     if (show(1)) {
       const gx = cx(c + GSCALE * df * grow(1));
       arrow(g, px, lane - 9, gx, lane - 9, "grad", 10);
-      label(px, gx, lane - 18, `f′(c) = ${fmt(df)} (uphill)`);
+      label(px, gx, lane - 18, `f′(w) = ${fmt(df)} (uphill)`);
     }
     if (show(2)) {
       const stx = cx(c - eta.get() * df * grow(2));
       arrow(g, px, lane + 9, stx, lane + 9, "step", 11);
-      label(px, stx, lane + 25, `step −η f′(c) = ${fmt(-eta.get() * df)}`);
+      label(px, stx, lane + 25, `step −η f′(w) = ${fmt(-eta.get() * df)}`);
     }
     let hx = px, hy = py;
     if (anim && ph > 3) {
@@ -205,9 +205,9 @@ const StepTab = (function () {
 
     node("rect", { x: P1.x0, y: P1.y0, width: P1.x1 - P1.x0,
       height: P1.y1 - P1.y0, class: "frame" }, svg);
-    text(svg, (P1.x0 + P1.x1) / 2, P1.y1 + 40, "c",
+    text(svg, (P1.x0 + P1.x1) / 2, P1.y1 + 40, "w",
       { class: "axis-label sym", "text-anchor": "middle" });
-    text(svg, 18, (P1.y0 + P1.y1) / 2, "f(c)", { class: "axis-label sym",
+    text(svg, 18, (P1.y0 + P1.y1) / 2, "f(w)", { class: "axis-label sym",
       "text-anchor": "middle",
       transform: `rotate(-90 18 ${(P1.y0 + P1.y1) / 2})` });
     edgeMarker1(svg, c, f);
@@ -240,19 +240,19 @@ const StepTab = (function () {
     const r = runner(), h = hovered(), rows = [];
     const c = h === null ? r.c : r.trail[h];
     if (S.dim === 1) {
-      rows.push(["<i>c</i>", fmt(c[0])],
-        ["<i>f</i>(<i>c</i>)", fmt(obj1.f(c[0]))],
-        ["<i>f</i>′(<i>c</i>)", fmt(obj1.df(c[0]))]);
+      rows.push(["<i>w</i>", fmt(c[0])],
+        ["<i>f</i>(<i>w</i>)", fmt(obj1.f(c[0]))],
+        ["<i>f</i>′(<i>w</i>)", fmt(obj1.df(c[0]))]);
       if (S.fn === "parabola") {
         rows.push(["one-step <i>η</i> = 1/(2<i>a</i>)", fmt(1 / (2 * S.a))]);
       }
     } else {
       const g = q2.grad(c);
-      rows.push([`<b>c</b> = ${colVec(["<i>c</i>₀", "<i>c</i>₁"])}`,
+      rows.push([`<b>w</b> = ${colVec(["<i>w</i>₀", "<i>w</i>₁"])}`,
         fmtCol(c)],
-        ["<i>f</i>(<b>c</b>)", fmt(q2.f(c))],
-        ["∇<i>f</i>(<b>c</b>)", fmtCol(g)],
-        ["‖∇<i>f</i>(<b>c</b>)‖", fmt(Math.hypot(...g))],
+        ["<i>f</i>(<b>w</b>)", fmt(q2.f(c))],
+        ["∇<i>f</i>(<b>w</b>)", fmtCol(g)],
+        ["‖∇<i>f</i>(<b>w</b>)‖", fmt(Math.hypot(...g))],
         ["condition number <i>κ</i>", fmt(S.kappa)]);
     }
     $("st-readout").innerHTML = rows.map(([k, v]) =>
@@ -282,8 +282,8 @@ const StepTab = (function () {
     // SVG elements have no hidden property; set the attribute.
     svg1.toggleAttribute("hidden", S.dim !== 1);
     $("st-2d").toggleAttribute("hidden", S.dim !== 2);
-    $("st-title").innerHTML = S.dim === 1 ? "<i>f</i>(<i>c</i>)"
-      : "<i>f</i>(<i>c</i>₀, <i>c</i>₁)";
+    $("st-title").innerHTML = S.dim === 1 ? "<i>f</i>(<i>w</i>)"
+      : "<i>f</i>(<i>w</i>₀, <i>w</i>₁)";
     $("st-a").value = Math.log2(S.a);
     $("st-aval").innerHTML = `<i>a</i> = ${fmt(S.a)}`;
     $("st-kappa").value = Math.log10(S.kappa);
@@ -303,11 +303,11 @@ const StepTab = (function () {
     $("st-run").disabled = !stopRun && !!r.status;
     $("st-step").disabled = !!r.status;
     $("st-hint").textContent = S.dim === 1
-      ? "Click or drag to choose the start c."
+      ? "Click or drag to choose the start w."
       : S.view === "3d"
-        ? "Drag to orbit, scroll to zoom. Drag the point c on the floor to "
+        ? "Drag to orbit, scroll to zoom. Drag the point w on the floor to "
           + "move it; hold Shift to change only one parameter."
-        : "Drag the point c, or click anywhere, to choose c. Hold Shift "
+        : "Drag the point w, or click anywhere, to choose w. Hold Shift "
           + "to change only one parameter.";
   }
 

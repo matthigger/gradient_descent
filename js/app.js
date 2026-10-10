@@ -1,10 +1,10 @@
 // Tabs, hash routing, keyboard steps and the footer build stamp. Each tab
-// (RegTab, StepTab) owns its own state and DOM.
+// (GradTab, StepTab, RegTab) owns its own state and DOM.
 
 (function () {
-  const TABS = { reg: RegTab, step: StepTab };
-  const HASH = { reg: "#regression", step: "#stepsize" };
-  let mode = "reg";
+  const TABS = { grad: GradTab, step: StepTab, reg: RegTab };
+  const HASH = { grad: "#gradient", step: "#stepsize", reg: "#regression" };
+  let mode = "grad";
 
   function setMode(m) {
     TABS[mode].stop();
@@ -43,5 +43,6 @@
       BUILD.sha.slice(0, 7)}</a>, ${when}`;
   }
 
-  setMode(location.hash === "#stepsize" ? "step" : "reg");
+  const fromHash = Object.keys(HASH).find(m => HASH[m] === location.hash);
+  setMode(fromHash || "grad");
 })();
